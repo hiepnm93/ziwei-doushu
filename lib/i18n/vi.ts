@@ -101,8 +101,3 @@ export const viBranch = (i: number) => BRANCHES_VI[((i % 12) + 12) % 12];
 export function viDate(d: Date | string | number): string {
   return new Date(d).toLocaleDateString('vi-VN');
 }
-
-/** 农历月日越南语：tháng 5 (nhuận), ngày 12 */
-export function viLunar(month: number, day: number, leap = false): string {
-  return `ngày ${day} tháng ${Math.abs(month)}${leap ? ' (nhuận)' : ''} âm lịch`;
-}
