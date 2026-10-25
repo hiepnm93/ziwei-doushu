@@ -1114,7 +1114,7 @@ export default function HomePage() {
             Không phải lời khuyên y tế, đầu tư, pháp lý hay cho quyết định quan trọng.
           </p>
           <p className="text-[10px] tracking-wider" style={{ color: c.footerText }}>
-            <a href="/terms" style={{ color: c.footerText, textDecoration: 'underline' }}>Điều khoản dịch vụ</a>
+            <a href="/terms" style={{ color: c.footerText, textDecoration: 'underline' }}>Điều khoản sử dụng</a>
             {' · '}
             <a href="/privacy" style={{ color: c.footerText, textDecoration: 'underline' }}>Chính sách bảo mật</a>
           </p>
