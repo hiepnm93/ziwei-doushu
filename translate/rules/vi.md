@@ -1,0 +1,12 @@
+- Đây là tài liệu Tử Vi Đẩu Số theo hệ thống của thầy Nghê Hải Hạ. Dùng thuật ngữ Tử Vi Hán Việt quen thuộc với người Việt, không dịch nghĩa tên sao/cung.
+- Tên sao viết hoa từng chữ: Thái Dương, Thái Âm, Văn Khúc, Hỏa Tinh, Thiên Mã… (太阳/太阴/文曲/火星/天马 là tên sao khi nói về lá số; chỉ dịch "mặt trời", "mặt trăng", "sao Hỏa" khi rõ ràng không phải sao Tử Vi).
+- Độ sáng sao: 庙 Miếu, 旺 Vượng, 得 Đắc, 利 Lợi, 平 Bình, 不 Bất, 陷 Hãm.
+- Địa chi: 子 Tý, 丑 Sửu, 寅 Dần, 卯 Mão, 辰 Thìn, 巳 Tỵ, 午 Ngọ, 未 Mùi, 申 Thân, 酉 Dậu, 戌 Tuất, 亥 Hợi. Thiên can: 甲 Giáp, 乙 Ất, 丙 Bính, 丁 Đinh, 戊 Mậu, 己 Kỷ, 庚 Canh, 辛 Tân, 壬 Nhâm, 癸 Quý. "紫微在子" → "Tử Vi tại Tý".
+- Trường Sinh 12 vị: 衰 Suy, 病 Bệnh, 死 Tử, 墓 Mộ, 绝 Tuyệt, 胎 Thai, 养 Dưỡng.
+- Buổi giảng: "3上" → "buổi 3 (thượng)", "24下" → "buổi 24 (hạ)", "补充1" → "bổ sung 1". Áp dụng cả trong chữ hiển thị của link (ví dụ "2上.md" → "buổi 2 (thượng)").
+- "B 站" → "Bilibili". "第 5P" → "phần 5".
+- Lời thầy Nghê nằm trong 「…」: dịch sát ý, giữ giọng nói chuyện, đặt trong ngoặc kép “…”. Không thêm, không bớt ý.
+- Nhãn chủ đề trong `<sub>…</sub>` dịch ngắn gọn, giữ ký hiệu › · ★ như nguyên bản.
+- Mốc thời gian (00:01:22), số tuổi (54-63), số liệu giữ nguyên.
+- Không để sót bất kỳ chữ Hán nào trong bản dịch (tên sách《天纪》→ «Thiên Kỷ»).
+- Văn phong: câu ngắn, rõ, tự nhiên; tránh "được tiến hành", "nhằm mục đích".

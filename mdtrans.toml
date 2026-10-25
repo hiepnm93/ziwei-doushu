@@ -1,0 +1,13 @@
+# md-translate (github.com/hiepnm93/md-translate): Chinese → Vietnamese.
+source_lang = "zh"
+targets = ["vi"]
+files = ["README.zh.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "docs/tianji-ziwei/*.md"]
+out = "{dir}/{lang}/{name}"
+# README: vi/README.zh.md is copied to README.md (default VI), anchors remapped from README.zh.md.
+glossary = "translate/glossary.json"
+rules = "translate/rules/{lang}.md"
+unit_heading_level = 2
+max_unit_chars = 8000
+banned = { vi = ['\bđược tiến hành\b', '\bnhằm mục đích\b'] }
+workdir = ".mdtrans"
+concurrency = 2
