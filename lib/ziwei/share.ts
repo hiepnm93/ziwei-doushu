@@ -1,10 +1,11 @@
 import type { BirthFormState } from '@/components/BirthForm';
 import type { BirthInfo } from './types';
+import { standardMeridian } from './vn-time';
 
-/** 根据北京时间 + 经度计算真太阳时时辰支 (0-11) */
-export function calcTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number): number {
+/** 根据出生地钟表时间 + 经度计算真太阳时时辰支 (0-11)；meridian = 出生地时区标准子午线 */
+export function calcTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number, meridian = 120): number {
   const clockMins = clockHour * 60 + clockMinute;
-  const offset = (longitude - 120) * 4;
+  const offset = (longitude - meridian) * 4;
   const solar = ((clockMins + offset) % 1440 + 1440) % 1440;
   if (solar >= 1380 || solar < 60) return 0;
   return Math.floor((solar - 60) / 120) + 1;
@@ -21,6 +22,8 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
   let y = parseInt(form.year) || 0;
   let m = parseInt(form.month) || 0;
   let d = parseInt(form.day) || 0;
+  // 无 country = 旧表单/旧链接，按中国东八区
+  const meridian = standardMeridian(form.country ?? 'CN', form.province, y, m, d);
 
   // 晚子时（23:00-23:59）按次日处理：用 Date 对象自动处理月末/年末进位
   if (!form.unknownTime) {
@@ -35,7 +38,7 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
 
   const hour = form.unknownTime
     ? 0
-    : calcTrueSolarBranch(parseInt(form.clockHour) || 0, parseInt(form.clockMinute) || 0, form.longitude);
+    : calcTrueSolarBranch(parseInt(form.clockHour) || 0, parseInt(form.clockMinute) || 0, form.longitude, meridian);
   return {
     year: y, month: m, day: d,
     hour,
@@ -60,6 +63,7 @@ export function formToSearchParams(form: BirthFormState): URLSearchParams {
     p.set('h', form.clockHour);
     p.set('mi', form.clockMinute);
   }
+  if (form.country) p.set('co', form.country);
   if (form.province) p.set('p', form.province);
   if (form.city) p.set('c', form.city);
   if (form.longitude && form.longitude !== 120) p.set('lo', String(form.longitude));
@@ -83,6 +87,7 @@ export function searchParamsToForm(params: URLSearchParams): Partial<BirthFormSt
     clockMinute: params.get('mi') || '0',
     province: params.get('p') || '',
     city: params.get('c') || '',
+    country: params.get('co') === 'VN' ? 'VN' : 'CN',
     longitude: parseFloat(params.get('lo') || '120'),
     gender: params.get('g') === 'f' ? 'female' : 'male',
   };

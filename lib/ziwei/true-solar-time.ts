@@ -1,7 +1,7 @@
 /**
  * 真太阳时统一计算。
  *
- * 口径：地方真太阳时 = 东八区钟表时间 + 经度修正 + 均时差。
+ * 口径：地方真太阳时 = 出生地钟表时间 + 经度修正（相对该时区标准子午线，默认东八区 120°E）+ 均时差。
  * 均时差采用 NOAA 的 fractional-year 近似式，1900-2026 年范围内足以稳定
  * 判断紫微斗数的两小时时辰边界。
  *
@@ -21,6 +21,8 @@ export interface TrueSolarTimeInput extends GregorianDate {
   clockMinute: number;
   /** 未提供经度时保持原钟表时间，不做真太阳时校正。 */
   longitude?: number;
+  /** 出生地时区标准子午线（°E），默认 120；越南 UTC+7 为 105，见 vn-time.ts */
+  meridian?: number;
 }
 
 export interface TrueSolarTimeResult {
@@ -99,7 +101,7 @@ export function branchFromSolarMinutes(normalizedMinutes: number): number {
 export function calculateTrueSolarTime(input: TrueSolarTimeInput): TrueSolarTimeResult {
   const dateValid = isValidGregorianDate(input.year, input.month, input.day);
   const corrected = input.longitude !== undefined && Number.isFinite(input.longitude);
-  const longitudeCorrectionMinutes = corrected ? (input.longitude! - 120) * 4 : 0;
+  const longitudeCorrectionMinutes = corrected ? (input.longitude! - (input.meridian ?? 120)) * 4 : 0;
   const eot = corrected && dateValid
     ? equationOfTimeMinutes(input.year, input.month, input.day, input.clockHour, input.clockMinute)
     : 0;
