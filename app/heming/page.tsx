@@ -5,7 +5,7 @@ import BirthForm, { type BirthFormState } from '@/components/BirthForm';
 import { formToBirthInfo } from '@/lib/ziwei/share';
 import { generateChart as buildChart } from '@/lib/ziwei/algorithm';
 import type { ZiweiChart } from '@/lib/ziwei/types';
-import ChartSummary from '@/components/ChartSummary';
+import { viTerm, viBranch } from '@/lib/i18n/vi';
 import { useTheme } from '@/components/ThemeProvider';
 
 export default function HemingPage() {
@@ -145,7 +145,7 @@ export default function HemingPage() {
             {[chartA, chartB].map((c, i) => (
               <div key={i}>
                 <span style={labelStyle}>{i === 0 ? 'Người A' : 'Người B'}</span>
-                <ChartSummary chart={c} />
+                <ChartBrief chart={c} />
               </div>
             ))}
           </div>
@@ -157,6 +157,20 @@ export default function HemingPage() {
           .heming-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
+    </div>
+  );
+}
+
+/** 简要盘面（不引用 server-only 的 patterns） */
+function ChartBrief({ chart }: { chart: ZiweiChart }) {
+  const ming = chart.palaces.find(p => p.branch === chart.mingGongBranch);
+  const main = ming?.stars.filter(s => s.type === 'major') ?? [];
+  const row = { fontSize: '13px', color: 'var(--tx-2)', marginTop: '6px' } as const;
+  return (
+    <div style={{ padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--bdr)', background: 'var(--bg-1)' }}>
+      <div style={row}>Cung Mệnh: <strong>{viBranch(chart.mingGongBranch)}</strong> · Cung Thân: <strong>{viBranch(chart.shenGongBranch)}</strong></div>
+      <div style={row}>Cục: <strong>{viTerm(chart.wuxingJuName)}</strong></div>
+      <div style={row}>Chính tinh thủ Mệnh: <strong>{main.length ? main.map(s => viTerm(s.name)).join(', ') : 'Vô chính diệu'}</strong></div>
     </div>
   );
 }
