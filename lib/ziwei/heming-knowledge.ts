@@ -1,329 +1,329 @@
 /**
- * 紫微斗数合盘知识库
- * 基于倪海厦《天纪》体系 + 《紫微斗数全书》古典断语 + 全网专业资料整合
- * 供合盘 AI 分析使用
+ * Cơ sở tri thức hợp bàn Tử Vi Đẩu Số
+ * Dựa trên hệ thống 《Thiên Kỷ》 của Nghê Hải Hạ + các câu đoán cổ điển trong 《Tử Vi Đẩu Số Toàn Thư》 + tư liệu chuyên môn tổng hợp
+ * Dùng cho phân tích hợp bàn bằng AI
  */
 
-// ─── 十四主星在夫妻宫的完整断语 ──────────────────────────
+// ─── Đoán ngữ đầy đủ của 14 chính tinh tại cung Phu Thê ──────────────────────────
 
 export const STAR_IN_FUQI_GU: Record<string, {
-  summary: string;       // 一句话核心
-  good: string;          // 吉象条件/表现
-  bad: string;           // 凶象/注意事项
-  spouse_traits: string; // 配偶外形性格
-  timing: string;        // 婚期建议
-  ni_quote?: string;     // 倪海厦原话
+  summary: string;       // Tóm tắt cốt lõi trong một câu
+  good: string;          // Điều kiện/biểu hiện cát
+  bad: string;           // Biểu hiện hung / điều cần lưu ý
+  spouse_traits: string; // Ngoại hình, tính cách của bạn đời
+  timing: string;        // Gợi ý thời điểm kết hôn
+  ni_quote?: string;     // Lời nguyên văn của Nghê Hải Hạ
 }> = {
   '紫微': {
-    summary: '配偶高傲能干，宜晚婚，感情以尊重为基础',
-    good: '三方有辅弼相夹，配偶贤能有才，婚后得贵助；三合见禄主财禄双全',
-    bad: '孤君无辅，配偶强势难沟通；辰戌宫夫妻情分淡薄；会破军：婚前有诸多阻碍',
-    spouse_traits: '配偶气质高傲，有主见，自尊心强，能力强但不轻易表达情感',
-    timing: '宜晚婚（男30以上，女27以上），早婚多挫折',
-    ni_quote: '紫微在夫妻宫，孤克，宜晚婚，感情好但沟通成本高',
+    summary: 'Bạn đời kiêu hãnh, giỏi giang, nên kết hôn muộn; tình cảm lấy sự tôn trọng làm nền',
+    good: 'Tam phương có Phù Bật giáp: bạn đời hiền tài, sau hôn nhân được quý nhân giúp; tam hợp gặp Lộc thì tài lộc song toàn',
+    bad: 'Cô quân không có phụ tá: bạn đời mạnh thế, khó trao đổi; ở cung Thìn, Tuất thì tình nghĩa vợ chồng nhạt; hội Phá Quân: trước hôn nhân nhiều trở ngại',
+    spouse_traits: 'Bạn đời khí chất kiêu hãnh, có chính kiến, tự tôn mạnh, năng lực giỏi nhưng không dễ bộc lộ tình cảm',
+    timing: 'Nên kết hôn muộn (nam trên 30, nữ trên 27), kết hôn sớm nhiều trắc trở',
+    ni_quote: 'Tử Vi ở cung Phu Thê thì cô khắc, nên kết hôn muộn; tình cảm tốt nhưng chi phí giao tiếp cao',
   },
   '天机': {
-    summary: '婚姻多变，宜年龄差较大的配偶',
-    good: '见禄存或化禄：感情尚可维持；会太阴：增添细腻温柔',
-    bad: '化忌或会煞：感情变化大，易有分离；天机善变，配偶对感情举棋不定',
-    spouse_traits: '配偶聪明多变，心思细腻，宗教哲学缘深，有点神经质',
-    timing: '宜年龄差异较大（差6岁以上），可降低双方变化冲突',
-    ni_quote: '天机善变，不宜独坐，婚姻充满变化',
+    summary: 'Hôn nhân nhiều thay đổi, nên chọn bạn đời chênh lệch tuổi khá lớn',
+    good: 'Gặp Lộc Tồn hoặc Hóa Lộc: tình cảm còn giữ được; hội Thái Âm: thêm phần tinh tế dịu dàng',
+    bad: 'Hóa Kỵ hoặc hội Sát tinh: tình cảm biến động lớn, dễ chia ly; Thiên Cơ hay thay đổi, bạn đời do dự về tình cảm',
+    spouse_traits: 'Bạn đời thông minh hay thay đổi, tâm tư tinh tế, có duyên với tôn giáo triết học, hơi thần kinh',
+    timing: 'Nên chênh lệch tuổi khá lớn (trên 6 tuổi), giúp giảm xung đột do thay đổi của hai bên',
+    ni_quote: 'Thiên Cơ hay thay đổi, không nên độc tọa, hôn nhân đầy biến động',
   },
   '太阳': {
-    summary: '男命助妻，女命旺夫；落陷化忌则反主刑克',
-    good: '庙旺（卯至申宫）：配偶能干，男命有贤内助；女命嫁旺夫，婚姻美满',
-    bad: '落陷（酉至寅宫）：男命配偶病弱，女命嫁庸夫；化忌：女命"上不见父，下不见子，中不见夫"，那十年丈夫有重大灾难',
-    spouse_traits: '配偶开朗大方，有公众形象意识，慷慨但有时过于强势',
-    timing: '感情走势始热终冷，宜保持适当距离维持新鲜感',
-    ni_quote: '太阳化忌，上不见父，下不见子，中不见夫——女命那十年丈夫必有重大灾祸',
+    summary: 'Nam mệnh giúp vợ, nữ mệnh vượng phu; hãm địa hóa Kỵ thì chủ hình khắc',
+    good: 'Miếu Vượng (cung Mão đến Thân): bạn đời giỏi giang, nam mệnh có nội trợ hiền; nữ mệnh lấy chồng vượng phu, hôn nhân mỹ mãn',
+    bad: 'Hãm địa (cung Dậu đến Dần): nam mệnh bạn đời ốm yếu, nữ mệnh lấy chồng kém cỏi; Hóa Kỵ: nữ mệnh “trên không thấy cha, dưới không thấy con, giữa không thấy chồng”, mười năm đó chồng gặp tai họa lớn',
+    spouse_traits: 'Bạn đời cởi mở phóng khoáng, có ý thức về hình ảnh công chúng, hào phóng nhưng đôi khi quá áp đặt',
+    timing: 'Tình cảm diễn biến nóng trước lạnh sau, nên giữ khoảng cách vừa phải để duy trì sự mới mẻ',
+    ni_quote: 'Thái Dương Hóa Kỵ, trên không thấy cha, dưới không thấy con, giữa không thấy chồng — nữ mệnh mười năm đó chồng ắt gặp tai họa lớn',
   },
   '武曲': {
-    summary: '寡宿之星，婚姻刑克，一律宜晚婚',
-    good: '武曲化禄：配偶有财能力，但男命反嫌妻太能干；见禄存夹辅：婚姻稳固有财',
-    bad: '化忌：孤寡，难婚，或配偶身有残疾；武曲七杀（卯酉宫）：婚姻恶劣之兆；遇四煞任一：主离婚；武曲破军：见煞忌刑曜婚姻必不利',
-    spouse_traits: '配偶刚烈独立，说话直接，不善表达情感，经济能力强但性格较孤克',
-    timing: '武曲系一律建议30岁以后结婚，早婚早散',
-    ni_quote: '武曲化忌，为刑囚之星，武曲系婚姻宜晚',
+    summary: 'Sao Quả Tú, hôn nhân hình khắc, nhất loạt nên kết hôn muộn',
+    good: 'Vũ Khúc Hóa Lộc: bạn đời có năng lực kiếm tiền, nhưng nam mệnh lại chê vợ quá giỏi; gặp Lộc Tồn giáp Phù Bật: hôn nhân vững chắc có của',
+    bad: 'Hóa Kỵ: cô quả, khó lấy vợ lấy chồng, hoặc bạn đời có tật; Vũ Khúc Thất Sát (cung Mão, Dậu): điềm hôn nhân xấu; gặp bất kỳ Tứ Sát nào: chủ ly hôn; Vũ Khúc Phá Quân: gặp Sát Kỵ Hình tinh thì hôn nhân ắt bất lợi',
+    spouse_traits: 'Bạn đời cương liệt độc lập, nói thẳng, không giỏi bày tỏ tình cảm, kinh tế vững nhưng tính cách khá cô khắc',
+    timing: 'Hệ Vũ Khúc nhất loạt nên kết hôn sau 30 tuổi, kết hôn sớm thì chia tay sớm',
+    ni_quote: 'Vũ Khúc Hóa Kỵ là sao hình tù, hệ Vũ Khúc hôn nhân nên muộn',
   },
   '天同': {
-    summary: '配偶温和享乐，宜年龄差较大，晚婚为吉',
-    good: '见禄存或化禄：配偶温和带财，家庭安稳；与太阴同：感情温柔甜蜜',
-    bad: '化忌：感情刚开始尚可，逐渐转淡，因协调不良引起怨怼；遇煞多：懒散变成负担',
-    spouse_traits: '配偶温和善良，乐观随和，但可能懒散，享乐主义较强',
-    timing: '男娶比自己小、女嫁比自己大，年龄差8年以上为最佳结发',
+    summary: 'Bạn đời ôn hòa thích hưởng thụ, nên chênh lệch tuổi lớn, kết hôn muộn là cát',
+    good: 'Gặp Lộc Tồn hoặc Hóa Lộc: bạn đời ôn hòa có của, gia đình yên ổn; đồng cung Thái Âm: tình cảm dịu dàng ngọt ngào',
+    bad: 'Hóa Kỵ: lúc đầu tình cảm còn ổn, dần nhạt đi, vì phối hợp kém sinh oán trách; gặp nhiều Sát: lười biếng thành gánh nặng',
+    spouse_traits: 'Bạn đời ôn hòa hiền lành, lạc quan dễ tính, nhưng có thể lười biếng, thiên về hưởng thụ',
+    timing: 'Nam cưới người nhỏ tuổi hơn, nữ gả người lớn tuổi hơn, chênh lệch từ 8 tuổi trở lên là tốt nhất',
   },
   '廉贞': {
-    summary: '夫妻宫最不稳定的主星，生离死别风险高',
-    good: '廉贞天府（子午）：配偶温和清秀，感情尚可，配偶多为薪水族',
-    bad: '廉贞贪狼：非生离即死别；廉贞破军：水中做坟墓；廉贞七杀：半路埋尸体；化忌：感情骚扰不断，和好破裂循环；与火星同宫：纵有吉曜也分居',
-    spouse_traits: '配偶外形出众，善于交际，情绪价值高，但不稳定；可能离多聚少',
-    timing: '男命宜配年少之妻（年轻6-12岁），女命宜配年长之夫',
-    ni_quote: '廉贞贪狼/廉贞破军在夫妻宫，不管男命女命，非生离即死别；廉贞七杀——半路埋尸；廉贞破军——水中做冢；廉贞贪狼——横夭（夭折）',
+    summary: 'Chính tinh bất ổn nhất ở cung Phu Thê, nguy cơ sinh ly tử biệt cao',
+    good: 'Liêm Trinh Thiên Phủ (Tý, Ngọ): bạn đời ôn hòa thanh tú, tình cảm tạm ổn, bạn đời phần nhiều làm công ăn lương',
+    bad: 'Liêm Trinh Tham Lang: không sinh ly thì tử biệt; Liêm Trinh Phá Quân: xây mồ giữa nước; Liêm Trinh Thất Sát: chôn xác giữa đường; Hóa Kỵ: tình cảm quấy nhiễu không dứt, hòa rồi vỡ lặp đi lặp lại; đồng cung Hỏa Tinh: dù có cát tinh cũng phải ở riêng',
+    spouse_traits: 'Bạn đời ngoại hình nổi bật, khéo giao tiếp, giá trị cảm xúc cao nhưng không ổn định; có thể xa nhiều gần ít',
+    timing: 'Nam mệnh nên cưới vợ trẻ hơn (6-12 tuổi), nữ mệnh nên lấy chồng lớn tuổi hơn',
+    ni_quote: 'Liêm Trinh Tham Lang / Liêm Trinh Phá Quân ở cung Phu Thê, nam mệnh hay nữ mệnh đều không sinh ly thì tử biệt; Liêm Trinh Thất Sát — chôn xác giữa đường; Liêm Trinh Phá Quân — xây mồ giữa nước; Liêm Trinh Tham Lang — chết yểu',
   },
   '天府': {
-    summary: '善曜，主生离不死别，感情平稳但平淡',
-    good: '见禄存或化禄：财禄双全，感情稳定；三方无煞：夫妻平静和谐',
-    bad: '辅弼单星：易有第二次婚姻；遇四煞：感情漠然，生离概率增加',
-    spouse_traits: '配偶温文尔雅，兴趣广泛，守财有原则，工作能力强，但偏保守',
-    timing: '男命配偶年长，女命配偶年少；感情稳定但需主动经营',
+    summary: 'Cát tinh, chủ sinh ly chứ không tử biệt, tình cảm bình ổn nhưng nhạt',
+    good: 'Gặp Lộc Tồn hoặc Hóa Lộc: tài lộc song toàn, tình cảm ổn định; tam phương không có Sát: vợ chồng yên hòa',
+    bad: 'Phù Bật chỉ có một sao: dễ có hôn nhân lần hai; gặp Tứ Sát: tình cảm thờ ơ, khả năng sinh ly tăng',
+    spouse_traits: 'Bạn đời nho nhã, sở thích rộng, giữ của có nguyên tắc, năng lực làm việc mạnh nhưng thiên về bảo thủ',
+    timing: 'Nam mệnh bạn đời lớn tuổi hơn, nữ mệnh bạn đời nhỏ tuổi hơn; tình cảm ổn định nhưng cần chủ động vun đắp',
   },
   '太阴': {
-    summary: '喜清秀温柔配偶；落陷加煞则感情多变',
-    good: '庙旺（子至午）见吉：配偶秀气有成就，男命妻美；女命：自身秀美有气质',
-    bad: '落陷（未至亥）：感情易变，配偶健康欠佳；化忌（男命尤忌）：婆媳不和，妻子与母亲必起冲突；遇火铃：感情重大变故',
-    spouse_traits: '配偶温柔秀气，细腻敏感，重感情，但有时情绪化',
-    timing: '无特定约束，但落陷时宜晚婚',
-    ni_quote: '男人的命，最怕太阴化忌，婆媳不和，太太跟妈妈一定不和的',
+    summary: 'Thích bạn đời thanh tú dịu dàng; hãm địa gặp Sát thì tình cảm hay thay đổi',
+    good: 'Miếu Vượng (Tý đến Ngọ) gặp cát: bạn đời thanh tú có thành tựu, nam mệnh vợ đẹp; nữ mệnh: bản thân xinh đẹp có khí chất',
+    bad: 'Hãm địa (Mùi đến Hợi): tình cảm dễ đổi, sức khỏe bạn đời kém; Hóa Kỵ (nam mệnh càng kỵ): mẹ chồng nàng dâu bất hòa, vợ và mẹ ắt xung đột; gặp Hỏa Linh: tình cảm biến cố lớn',
+    spouse_traits: 'Bạn đời dịu dàng thanh tú, tinh tế nhạy cảm, trọng tình cảm, nhưng đôi khi thất thường',
+    timing: 'Không ràng buộc đặc biệt, nhưng khi hãm địa nên kết hôn muộn',
+    ni_quote: 'Mệnh đàn ông, sợ nhất Thái Âm Hóa Kỵ, mẹ chồng nàng dâu bất hòa, vợ với mẹ nhất định không hợp nhau',
   },
   '贪狼': {
-    summary: '桃花最旺，婚姻不稳，外遇风险高',
-    good: '化禄：配偶才艺佳，风情万种，感情甜蜜（但外遇风险不减）；遇化科：减少外遇',
-    bad: '化忌：多二次婚姻；紫微贪狼（卯酉）：配偶多外出，有外遇之兆；遇四煞：必生离；午宫贪狼（武官星）：反主武职配偶，较稳定',
-    spouse_traits: '配偶才艺超群，社交能力强，异性缘极好，但欲望旺盛，难以约束',
-    timing: '早婚感情多变，宜晚婚；婚前务必了解对方异性关系',
-    ni_quote: '贪狼除了指桃花星，也指酒色财气赌，统统在贪狼里面；贪狼在午宫是武官星，不要随便批桃花',
+    summary: 'Đào hoa vượng nhất, hôn nhân bất ổn, nguy cơ ngoại tình cao',
+    good: 'Hóa Lộc: bạn đời tài nghệ giỏi, phong tình vạn chủng, tình cảm ngọt ngào (nhưng nguy cơ ngoại tình không giảm); gặp Hóa Khoa: giảm ngoại tình',
+    bad: 'Hóa Kỵ: nhiều hôn nhân lần hai; Tử Vi Tham Lang (Mão, Dậu): bạn đời hay đi xa, có điềm ngoại tình; gặp Tứ Sát: ắt sinh ly; Tham Lang ở cung Ngọ (sao võ quan): ngược lại chủ bạn đời làm nghề võ, tương đối ổn định',
+    spouse_traits: 'Bạn đời tài nghệ hơn người, giao tế mạnh, được lòng người khác giới, nhưng dục vọng vượng, khó ràng buộc',
+    timing: 'Kết hôn sớm tình cảm nhiều biến động, nên kết hôn muộn; trước hôn nhân nhất định phải tìm hiểu quan hệ khác giới của đối phương',
+    ni_quote: 'Tham Lang ngoài chỉ sao đào hoa, còn chỉ tửu sắc tài khí đổ bác, tất cả đều nằm trong Tham Lang; Tham Lang ở cung Ngọ là sao võ quan, đừng tùy tiện luận là đào hoa',
   },
   '巨门': {
-    summary: '口舌是非多，夫妻易争吵，需太阳化解',
-    good: '太阳庙旺相会：反主婚姻和美，口才化为沟通利器；化禄：妻子贤能，财路因妻而开',
-    bad: '化忌：配偶爱唠叨，是非不断；陀罗同度：夫妻自寻烦恼；独守无吉：感情压抑，深层矛盾多',
-    spouse_traits: '配偶口才好，嫉妒心强，在乎面子，有时过于挑剔，但内心深情',
-    timing: '无特定约束，但需做好长期沟通磨合的心理准备',
+    summary: 'Khẩu thiệt thị phi nhiều, vợ chồng dễ cãi vã, cần Thái Dương hóa giải',
+    good: 'Thái Dương Miếu Vượng tương hội: ngược lại hôn nhân hòa mỹ, tài ăn nói thành công cụ giao tiếp; Hóa Lộc: vợ hiền giỏi, đường tài nhờ vợ mà mở',
+    bad: 'Hóa Kỵ: bạn đời hay càu nhàu, thị phi không dứt; đồng độ Đà La: vợ chồng tự chuốc phiền; độc thủ không cát: tình cảm bị đè nén, mâu thuẫn sâu nhiều',
+    spouse_traits: 'Bạn đời ăn nói khéo, hay ghen, coi trọng thể diện, đôi khi quá xét nét, nhưng trong lòng sâu nặng tình cảm',
+    timing: 'Không ràng buộc đặc biệt, nhưng cần chuẩn bị tâm lý cho việc trao đổi, rèn hợp lâu dài',
   },
   '天相': {
-    summary: '"亲上加亲"良缘，夫唱妇随，合作型婚姻',
-    good: '见辅弼双全：感情忠诚，婚姻稳固；配偶正直踏实；天相三合见禄：财禄可期',
-    bad: '辅弼单星：可能预示再婚；遇煞多：感情中压抑委屈，不善表达',
-    spouse_traits: '配偶正直踏实，守信用，不喜欢冲突，善于协调，是绝佳的生活伴侣',
-    timing: '多为同学、同事、街坊等熟识关系发展，宜夫妻合作共事',
+    summary: 'Lương duyên “thân càng thêm thân”, chồng xướng vợ tùy, hôn nhân kiểu hợp tác',
+    good: 'Gặp Phù Bật đủ cả đôi: tình cảm trung thành, hôn nhân vững; bạn đời ngay thẳng thật thà; Thiên Tướng tam hợp gặp Lộc: tài lộc đáng mong',
+    bad: 'Phù Bật chỉ có một sao: có thể báo hiệu tái hôn; gặp nhiều Sát: trong tình cảm bị đè nén ấm ức, không giỏi bày tỏ',
+    spouse_traits: 'Bạn đời ngay thẳng thật thà, giữ chữ tín, không thích xung đột, khéo điều hòa, là bạn đồng hành tuyệt vời',
+    timing: 'Phần nhiều phát triển từ quan hệ quen biết như bạn học, đồng nghiệp, hàng xóm; nên vợ chồng hợp tác làm việc chung',
   },
   '天梁': {
-    summary: '喜责任感强或年纪较长的配偶，婚前多波折',
-    good: '见禄：配偶有福德，感情踏实；三合方有吉：感情经营稳重理智',
-    bad: '化忌或见煞：爱唠叨，强势说服，感情疏离；天梁配天马：夫妻因环境分散；婚前易初恋失败',
-    spouse_traits: '配偶责任感强���稳重老成，善讲道理，但偶有说教倾向',
-    timing: '婚前多波折是常态，一旦结婚反而稳固；无煞婚后情缘更深',
+    summary: 'Thích bạn đời có tinh thần trách nhiệm cao hoặc lớn tuổi hơn, trước hôn nhân nhiều trắc trở',
+    good: 'Gặp Lộc: bạn đời có phúc đức, tình cảm vững chắc; tam hợp có cát: vun đắp tình cảm vững vàng lý trí',
+    bad: 'Hóa Kỵ hoặc gặp Sát: hay càu nhàu, áp đặt thuyết phục, tình cảm xa cách; Thiên Lương phối Thiên Mã: vợ chồng vì hoàn cảnh mà phân tán; trước hôn nhân dễ thất bại mối tình đầu',
+    spouse_traits: 'Bạn đời trách nhiệm cao, điềm đạm già dặn, giỏi nói đạo lý, nhưng thỉnh thoảng có khuynh hướng giảng giải',
+    timing: 'Trước hôn nhân nhiều trắc trở là chuyện thường, một khi kết hôn lại vững chắc; không có Sát thì tình duyên sau hôn nhân càng sâu',
   },
   '七杀': {
-    summary: '"鸳衾半冷"——聚少离多，宜晚婚30岁后',
-    good: '庙旺（寅申宫）：配偶虽刚强但忠诚，一旦投入则全力付出；化禄相助：减轻孤克',
-    bad: '遇煞：感情表面和谐内心不满，男命主二娶；女命宜偏房继室；卯酉宫（武曲七杀）：婚姻运最差',
-    spouse_traits: '配偶刚强孤僻，一见钟情快，离开也快，恋爱冷热均快',
-    timing: '一律宜晚婚，30岁后婚姻较稳固；早婚多刑克',
-    ni_quote: '七杀居夫妇而鸳衾半冷（古赋）；如果你娶个太太是七杀入命，那你就差不多毁了一半了，很累啊，草木皆兵',
+    summary: '“Uyên khâm bán lãnh” — ít gặp nhiều xa, nên kết hôn muộn sau 30 tuổi',
+    good: 'Miếu Vượng (cung Dần, Thân): bạn đời tuy cương cường nhưng trung thành, một khi đã dốc lòng thì hết mình; Hóa Lộc tương trợ: giảm cô khắc',
+    bad: 'Gặp Sát: bề ngoài tình cảm hòa thuận trong lòng bất mãn, nam mệnh chủ cưới hai lần; nữ mệnh nên làm vợ lẽ hoặc kế thất; cung Mão, Dậu (Vũ Khúc Thất Sát): vận hôn nhân kém nhất',
+    spouse_traits: 'Bạn đời cương cường cô độc, tiếng sét ái tình nhanh, rời đi cũng nhanh, yêu đương nóng lạnh đều nhanh',
+    timing: 'Nhất loạt nên kết hôn muộn, sau 30 tuổi hôn nhân vững hơn; kết hôn sớm nhiều hình khắc',
+    ni_quote: 'Thất Sát cư phu thê mà uyên khâm bán lãnh (cổ phú); nếu bạn cưới người vợ có Thất Sát nhập Mệnh, thì coi như hỏng một nửa rồi, rất mệt, cỏ cây đều là địch',
   },
   '破军': {
-    summary: '婚姻破耗之星，无人出其右，追求无约束感情',
-    good: '化禄：破而后立，感情历经波折反而能走到最后；英星入庙：配偶英挺有个性',
-    bad: '化忌：破坏殆尽，多一婚或不婚；紫微破军（丑未）：不加煞亦克，加煞必离；与廉贞：水中做坟墓；中年后有分床分居之象',
-    spouse_traits: '配偶追求自由，不喜约束，勇于突破，但婚姻观念薄弱，一生变动大',
-    timing: '婚前易一见钟情或草率结婚，宜拉长相处时间再做决定',
-    ni_quote: '廉贞破军在夫妻宫，水中做坟墓；破军是婚姻破坏力最强的星',
+    summary: 'Sao phá hao của hôn nhân, không ai hơn được, theo đuổi tình cảm không ràng buộc',
+    good: 'Hóa Lộc: phá rồi mới lập, tình cảm trải qua trắc trở ngược lại đi được đến cuối; Anh tinh nhập miếu: bạn đời anh tuấn có cá tính',
+    bad: 'Hóa Kỵ: phá hoại hết sạch, nhiều một lần hôn nhân hoặc không kết hôn; Tử Vi Phá Quân (Sửu, Mùi): không thêm Sát cũng khắc, thêm Sát ắt ly; với Liêm Trinh: xây mồ giữa nước; sau trung niên có tượng ngủ riêng ở riêng',
+    spouse_traits: 'Bạn đời theo đuổi tự do, không thích ràng buộc, dám đột phá, nhưng quan niệm hôn nhân mỏng, cả đời nhiều biến động',
+    timing: 'Trước hôn nhân dễ tiếng sét ái tình hoặc kết hôn vội vàng, nên kéo dài thời gian tìm hiểu rồi mới quyết định',
+    ni_quote: 'Liêm Trinh Phá Quân ở cung Phu Thê, xây mồ giữa nước; Phá Quân là sao có sức phá hoại hôn nhân mạnh nhất',
   },
 };
 
-// ─── 四化在夫妻宫的完整断语 ──────────��─────────────────────
+// ─── Đoán ngữ đầy đủ của Tứ Hóa tại cung Phu Thê ──────────────────────────────
 
 export const SIHUA_IN_FUQI_GU = {
-  '化禄': '与配偶有先天缘分，配偶个性乐观，婚后感情更好，配偶越来越会赚钱，缘分深厚；自化禄则财来财去，感情有但难守',
-  '化权': '婚姻多为主动争取而来，配偶掌握决策权，大部分事情配偶自行裁决，需学会放手；争取型婚姻，越强求越难得',
-  '化科': '视为小禄，能与配偶和谐相处，有贵人缘，利于恋爱结婚；科在夫妻主配偶有名声或专业技能',
-  '化忌': '欠下婚姻债务，早婚早离，建议晚婚或不婚；配偶对本人有怨言；化忌冲夫妻宫尤凶——生离死别之兆',
+  '化禄': 'Có duyên trời định với bạn đời, bạn đời tính lạc quan, sau hôn nhân tình cảm càng tốt, bạn đời ngày càng biết kiếm tiền, duyên phận sâu đậm; Tự hóa Lộc thì tiền đến tiền đi, tình cảm có nhưng khó giữ',
+  '化权': 'Hôn nhân phần nhiều do chủ động giành lấy, bạn đời nắm quyền quyết định, phần lớn việc bạn đời tự quyết, cần học cách buông tay; hôn nhân kiểu giành giật, càng cưỡng cầu càng khó được',
+  '化科': 'Xem như tiểu Lộc, hòa thuận với bạn đời, có duyên quý nhân, lợi cho yêu đương kết hôn; Khoa ở cung Phu Thê chủ bạn đời có danh tiếng hoặc kỹ năng chuyên môn',
+  '化忌': 'Nợ nần hôn nhân, kết hôn sớm ly dị sớm, nên kết hôn muộn hoặc không kết hôn; bạn đời có oán trách với bản thân; Hóa Kỵ xung cung Phu Thê càng hung — điềm sinh ly tử biệt',
 };
 
-// ─── 合盘核心方法论 ─────────────────────────────────────────
+// ─── Phương pháp luận cốt lõi của hợp bàn ─────────────────────────────────────────
 
 export const HEMING_METHODOLOGY = `
-## 合盘分析核心框架（倪海厦体系 + 《紫微斗数全书》综合）
+## Khung phân tích hợp bàn cốt lõi (hệ thống Nghê Hải Hạ + tổng hợp 《Tử Vi Đẩu Số Toàn Thư》)
 
-### 一、双宫联参原则（倪海厦最重要的婚姻断法）
+### Một. Nguyên tắc song cung tham chiếu (cách đoán hôn nhân quan trọng nhất của Nghê Hải Hạ)
 
-**核心口诀：「看婚姻，光看夫妻宫，大错特错，一定要同时看福德宫。」**
+**Khẩu quyết cốt lõi: “Xem hôn nhân, chỉ xem cung Phu Thê là sai lầm lớn, nhất định phải xem đồng thời cung Phúc Đức.”**
 
-- **夫妻宫**：看配偶的星性、外形、性格、互动模式
-- **福德宫**：代表夫妻深层感情、婚姻能否长久
-- **倪师案例**：“有人夫妻宫很好，福德宫很烂，散！夫妻要散。”
+- **Cung Phu Thê**: xem tính chất sao, ngoại hình, tính cách, kiểu tương tác của bạn đời
+- **Cung Phúc Đức**: đại diện tình cảm sâu xa của vợ chồng, hôn nhân có bền lâu hay không
+- **Ví dụ của thầy Nghê**: “Có người cung Phu Thê rất tốt, cung Phúc Đức rất tệ, tan! Vợ chồng sẽ tan.”
 
-**因此合盘时必须同时分析双方的：命宫 + 夫妻宫 + 福德宫**
-
----
-
-### 二、天作之合的判断标准
-
-**最高级匹配（天作之合）**：
-- 甲方夫妻宫主星 = 乙方命宫主星
-- 乙方夫妻宫主星 = 甲方命宫主星
-- 两者互相对应，则为命中注定的一对
-
-**次级良配**：
-- 一方夫妻宫主星 = 对方命宫主星（单向对应）
-- 双方命宫星性五行相生（如木命配土命、土命配水命）
-- 双方大限同走旺运
-
-**凶兆组合**：
-- 双方互相化忌冲对方命宫（互为冤家）
-- 一方化忌飞入另一方夫妻宫（带给对方婚姻伤害）
-- 双方夫妻宫皆有重煞无吉星
+**Vì vậy khi hợp bàn phải phân tích đồng thời của cả hai bên: cung Mệnh + cung Phu Thê + cung Phúc Đức**
 
 ---
 
-### 三、完整合盘五步法
+### Hai. Tiêu chuẩn phán đoán “thiên tác chi hợp”
 
-**第一步：评估双方命格基础**
-- 双方命宫格局是否般配（同类型 or 互补型）
-- 重点看：命宫 + 身宫 + 福德宫的星性搭配
-- 警戒：双方皆为杀破狼格（两虎相争）；或一强一弱过度悬殊
+**Cấp cao nhất (thiên tác chi hợp)**:
+- Chính tinh cung Phu Thê của bên A = chính tinh cung Mệnh của bên B
+- Chính tinh cung Phu Thê của bên B = chính tinh cung Mệnh của bên A
+- Hai bên tương ứng lẫn nhau, là cặp trời định
 
-**第二步：夫妻宫互参**
-- 甲方夫妻宫主星 → 是否对应乙方命宫/三合方星？
-- 乙方夫妻宫主星 → 是否对应甲方命宫/三合方星？
-- 双方夫妻宫各自的四化状态（化禄/化忌影响最大）
+**Lương duyên cấp kế**:
+- Chính tinh cung Phu Thê của một bên = chính tinh cung Mệnh của đối phương (tương ứng một chiều)
+- Ngũ hành tính sao cung Mệnh hai bên tương sinh (như Mộc mệnh phối Thổ mệnh, Thổ mệnh phối Thủy mệnh)
+- Đại hạn hai bên cùng đi vận vượng
 
-**第三步：太阳太阴星象分析**
-- 女命：太阳代表丈夫；太阳庙旺=旺夫，落陷化忌=克夫
-- 男命：太阴代表妻子；太阴庙旺=妻美贤，化忌=婆媳不和
-- 这两颗星在双方命盘中的状态，直接影响婚姻质量
-
-**第四步：四化飞化互参（高级技法）**
-- 甲方生年干 → 找到四化星 → 这些星落在乙方命盘哪个宫位
-  - 化禄飞入乙方命宫/财帛宫：对乙方有正向帮助
-  - 化忌飞入乙方夫妻宫：带给乙方婚姻伤害
-  - 化忌飞入乙方命宫：自身给对方带来压力
-- 乙方生年干 → 反向飞化分析甲方
-- 形成”飞化互参“，判断双向的”缘分类型”
-
-**第五步：大限同步分析**
-- 双方当前大限是否同走旺运：俱旺=最佳时机，俱衰=共同挑战
-- 一方旺一方衰：需有意识平衡双方状态
-- 流年三合方桃花星聚集：当年结婚好时机
+**Tổ hợp điềm hung**:
+- Hai bên Hóa Kỵ xung cung Mệnh của nhau (oan gia)
+- Một bên Hóa Kỵ phi nhập cung Phu Thê của bên kia (gây tổn hại hôn nhân cho đối phương)
+- Cung Phu Thê hai bên đều có nặng Sát mà không có cát tinh
 
 ---
 
-### 四、缘分类型判断
+### Ba. Năm bước hợp bàn đầy đủ
 
-| 化缘类型 | 特征 |
+**Bước 1: Đánh giá nền tảng mệnh cách hai bên**
+- Cách cục cung Mệnh hai bên có tương xứng không (cùng loại hay bổ sung nhau)
+- Trọng điểm: sự phối hợp tính sao của cung Mệnh + cung Thân + cung Phúc Đức
+- Cảnh báo: hai bên đều là cách Sát Phá Lang (hai hổ tranh nhau); hoặc một mạnh một yếu chênh lệch quá lớn
+
+**Bước 2: Tham chiếu cung Phu Thê**
+- Chính tinh cung Phu Thê của A → có tương ứng với cung Mệnh / sao tam hợp của B không?
+- Chính tinh cung Phu Thê của B → có tương ứng với cung Mệnh / sao tam hợp của A không?
+- Trạng thái Tứ Hóa của cung Phu Thê mỗi bên (Hóa Lộc / Hóa Kỵ ảnh hưởng lớn nhất)
+
+**Bước 3: Phân tích tinh tượng Thái Dương Thái Âm**
+- Nữ mệnh: Thái Dương đại diện chồng; Thái Dương Miếu Vượng = vượng phu, hãm địa Hóa Kỵ = khắc phu
+- Nam mệnh: Thái Âm đại diện vợ; Thái Âm Miếu Vượng = vợ đẹp hiền, Hóa Kỵ = mẹ chồng nàng dâu bất hòa
+- Trạng thái hai sao này trong lá số hai bên ảnh hưởng trực tiếp đến chất lượng hôn nhân
+
+**Bước 4: Phi hóa tham chiếu Tứ Hóa (kỹ thuật cao cấp)**
+- Can năm sinh của A → tìm các sao Tứ Hóa → các sao này rơi vào cung nào trong lá số của B
+  - Hóa Lộc phi nhập cung Mệnh / cung Tài Bạch của B: có lợi tích cực cho B
+  - Hóa Kỵ phi nhập cung Phu Thê của B: gây tổn hại hôn nhân cho B
+  - Hóa Kỵ phi nhập cung Mệnh của B: bản thân gây áp lực cho đối phương
+- Can năm sinh của B → phân tích ngược chiều phi hóa cho A
+- Hình thành “phi hóa tham chiếu”, phán đoán “loại duyên” hai chiều
+
+**Bước 5: Phân tích đồng bộ Đại hạn**
+- Đại hạn hiện tại của hai bên có cùng đi vận vượng không: cùng vượng = thời cơ tốt nhất, cùng suy = cùng thử thách
+- Một bên vượng một bên suy: cần chủ động cân bằng trạng thái hai bên
+- Tam hợp lưu niên tụ sao đào hoa: năm đó là thời cơ kết hôn tốt
+
+---
+
+### Bốn. Phán đoán loại duyên
+
+| Loại hóa duyên | Đặc trưng |
 |---------|------|
-| 化禄引动 | 正缘、真爱，感情甜蜜顺遂 |
-| 化权引动 | 主动争取的感情，有张力，有主导方 |
-| 化科引动 | 和谐相处的缘分，互相尊重，白头偕老型 |
-| 化忌引动 | 逆缘/冤家，彼此折磨但难以分离，需修行方可化解 |
-| 双方互化忌 | “冤家路窄“型，感情强烈但痛苦并存，前世欠债型 |
+| Hóa Lộc dẫn động | Chính duyên, tình yêu thật, tình cảm ngọt ngào thuận lợi |
+| Hóa Quyền dẫn động | Tình cảm do chủ động giành lấy, có sức căng, có bên làm chủ |
+| Hóa Khoa dẫn động | Duyên hòa thuận, tôn trọng lẫn nhau, kiểu bạc đầu giai lão |
+| Hóa Kỵ dẫn động | Nghịch duyên / oan gia, hành hạ nhau nhưng khó rời, cần tu hành mới hóa giải được |
+| Hai bên Hóa Kỵ lẫn nhau | Kiểu “oan gia ngõ hẹp”, tình cảm mãnh liệt nhưng đau khổ song hành, kiểu nợ tiền kiếp |
 
 ---
 
-### 五、婚期判断三层法
+### Năm. Ba tầng phán đoán thời điểm kết hôn
 
-**第一层：本命盘格局**
-- 夫妻宫无煞：宜早婚
-- 夫妻宫有煞无吉：宜晚婚（男30以上，女27以上）
-- 武曲、廉贞、七杀、破军在夫妻宫：一律建议晚婚
+**Tầng 1: Cách cục bản mệnh**
+- Cung Phu Thê không có Sát: nên kết hôn sớm
+- Cung Phu Thê có Sát không có cát: nên kết hôn muộn (nam trên 30, nữ trên 27)
+- Vũ Khúc, Liêm Trinh, Thất Sát, Phá Quân ở cung Phu Thê: nhất loạt khuyên kết hôn muộn
 
-**第二层：大限**
-- 大限夫妻宫吉星多：该十年有结婚机会
-- 大限夫妻宫化忌：该十年感情受阻
+**Tầng 2: Đại hạn**
+- Cung Phu Thê của đại hạn nhiều cát tinh: mười năm đó có cơ hội kết hôn
+- Cung Phu Thê của đại hạn Hóa Kỵ: mười năm đó tình cảm bị cản trở
 
-**第三层：流年**
-- 红鸾、天喜入命宫或夫妻宫：该年婚恋有动
-- 流年宫位落到夫妻宫：该年婚姻是重点
-- 流年三合方桃花星汇集：该年感情机遇多
+**Tầng 3: Lưu niên**
+- Hồng Loan, Thiên Hỉ nhập cung Mệnh hoặc cung Phu Thê: năm đó tình duyên có động
+- Cung lưu niên rơi vào cung Phu Thê: năm đó hôn nhân là trọng điểm
+- Tam hợp lưu niên tụ sao đào hoa: năm đó nhiều cơ hội tình cảm
 
 ---
 
-### 六、各宫位结婚情形
+### Sáu. Tình huống kết hôn theo từng cung
 
-| 流年宫位 | 结婚情形 |
+| Cung lưu niên | Tình huống kết hôn |
 |---------|---------|
-| 夫妻宫 | 正常感情发展结婚 |
-| 命宫 | 自己主动出击结婚 |
-| 子女宫 | 奉子成婚（先上车后补票） |
-| 田宅宫 | 因家庭、房产缘故结婚 |
-| 父母宫 | 奉父母之命，经长辈介绍 |
+| Cung Phu Thê | Tình cảm phát triển bình thường rồi kết hôn |
+| Cung Mệnh | Tự mình chủ động ra tay rồi kết hôn |
+| Cung Tử Nữ | Cưới vì có con (lên xe trước mua vé sau) |
+| Cung Điền Trạch | Kết hôn vì lý do gia đình, nhà đất |
+| Cung Phụ Mẫu | Theo lệnh cha mẹ, do bề trên giới thiệu |
 
 ---
 
-### 七、克夫/克妻的具体标志
+### Bảy. Dấu hiệu cụ thể của khắc phu / khắc thê
 
-**克夫命（非传统含义）倪师定义**：
-> “克夫的女孩子，就是太太在前面走，先生在后面满头大汗提着大包小包付钱，好不容易等到车，先生还要帮太太开门。这叫克夫。”
-> “旺夫，一个太太完全让先生没有后顾之忧。”
+**Định nghĩa của thầy Nghê về mệnh khắc phu (không theo nghĩa truyền thống)**:
+> “Cô gái khắc phu, là người vợ đi phía trước, ông chồng đi phía sau mồ hôi đầm đìa xách túi lớn túi nhỏ trả tiền, khó khăn lắm đợi được xe, chồng còn phải mở cửa cho vợ. Thế gọi là khắc phu.”
+> “Vượng phu, là người vợ khiến chồng hoàn toàn không phải lo lắng gì phía sau.”
 
-**具体标志**：
-- 夫妻宫廉贞+贪狼/破军/七杀（三凶组合）
-- 太阳落陷化忌（女命）
-- 太阴化忌（男命）
-- 夫妻宫四煞齐聚无吉星
-- 寡宿孤辰入命宫或夫妻宫
-- 福德宫破军陷落 + 廉贞平（水中做冢格）
-
----
-
-### 八、事业合作合盘判断
-
-**主要参考宫位**：
-- 官禄宫：双方事业宫星性是否兼容
-- 兄弟宫（仆役宫）：代表合伙关系
-- 福德宫：能否同甘共苦
-
-**事业合作吉象**：
-- 双方命宫互补（一谋一行）
-- 一方官禄宫化禄飞入另一方官禄宫
-- 兄弟宫有禄存无化忌冲
-
-**事业合作凶象**：
-- 双方化忌互冲官禄宫
-- 对方命宫化忌飞入己方财帛宫（对方消耗自己钱财）
-- 巨门在兄弟/仆役宫：倪师：”巨门在朋友宫，代表跟朋友合伙会朋友变仇人”
+**Dấu hiệu cụ thể**:
+- Cung Phu Thê có Liêm Trinh + Tham Lang / Phá Quân / Thất Sát (tổ hợp tam hung)
+- Thái Dương hãm địa Hóa Kỵ (nữ mệnh)
+- Thái Âm Hóa Kỵ (nam mệnh)
+- Cung Phu Thê Tứ Sát tụ đủ không có cát tinh
+- Quả Tú, Cô Thần nhập cung Mệnh hoặc cung Phu Thê
+- Cung Phúc Đức Phá Quân hãm + Liêm Trinh bình (cách xây mồ giữa nước)
 
 ---
 
-### 九、感情相位类型（命格兼容性速判）
+### Tám. Phán đoán hợp bàn hợp tác sự nghiệp
 
-| 双方组合 | 兼容性 | 说明 |
+**Các cung tham chiếu chính**:
+- Cung Quan Lộc: tính sao cung sự nghiệp hai bên có tương hợp không
+- Cung Huynh Đệ (cung Nô Bộc): đại diện quan hệ hùn hạp
+- Cung Phúc Đức: có thể đồng cam cộng khổ không
+
+**Điềm cát của hợp tác sự nghiệp**:
+- Cung Mệnh hai bên bổ sung nhau (một người mưu một người làm)
+- Cung Quan Lộc của một bên Hóa Lộc phi nhập cung Quan Lộc của bên kia
+- Cung Huynh Đệ có Lộc Tồn không bị Hóa Kỵ xung
+
+**Điềm hung của hợp tác sự nghiệp**:
+- Hai bên Hóa Kỵ xung nhau tại cung Quan Lộc
+- Hóa Kỵ cung Mệnh đối phương phi nhập cung Tài Bạch của mình (đối phương tiêu hao tiền của mình)
+- Cự Môn ở cung Huynh Đệ / Nô Bộc: thầy Nghê: “Cự Môn ở cung bạn bè, nghĩa là hùn hạp với bạn bè thì bạn thành thù”
+
+---
+
+### Chín. Các loại tương quan tình cảm (phán nhanh độ hợp của mệnh cách)
+
+| Tổ hợp hai bên | Độ hợp | Giải thích |
 |---------|-------|------|
-| 紫微 + 天府 | ★★★★★ | 帝星遇财库，相互成就，最稳定 |
-| 天相 + 任何星 | ★★★★ | 印星佐才，天相适应性强 |
-| 天梁 + 天同 | ★★★★ | 老成与温和互补，白头偕老型 |
-| 太阳 + 太阴 | ★★★★ | 日月并明，经典互补，阴阳调和 |
-| 七杀 + 七杀 | ★★ | 两虎相争，火花大，矛盾多 |
-| 破军 + 破军 | ★★ | 双破，彼此破坏，婚姻不稳 |
-| 廉贞 + 七杀/破军 | ★ | 三凶组合之二，生离死别风险最高 |
-| 杀破狼 + 机月同梁 | ★★★ | 动静互补，但需磨合，一方开拓一方守成 |
-| 紫破 + 廉府 | ★★★★ | 格局相当，互相吸引 |
-| 武曲 + 天同 | ★★★ | 刚柔互济，武曲收敛遇天同温和，能互补 |
+| Tử Vi + Thiên Phủ | ★★★★★ | Đế tinh gặp tài khố, thành toàn cho nhau, ổn định nhất |
+| Thiên Tướng + bất kỳ sao nào | ★★★★ | Ấn tinh phụ tài, Thiên Tướng thích ứng mạnh |
+| Thiên Lương + Thiên Đồng | ★★★★ | Già dặn và ôn hòa bổ sung nhau, kiểu bạc đầu giai lão |
+| Thái Dương + Thái Âm | ★★★★ | Nhật nguyệt tịnh minh, bổ sung kinh điển, âm dương điều hòa |
+| Thất Sát + Thất Sát | ★★ | Hai hổ tranh nhau, tia lửa lớn, mâu thuẫn nhiều |
+| Phá Quân + Phá Quân | ★★ | Song phá, phá hoại lẫn nhau, hôn nhân bất ổn |
+| Liêm Trinh + Thất Sát / Phá Quân | ★ | Hai trong tổ hợp tam hung, nguy cơ sinh ly tử biệt cao nhất |
+| Sát Phá Lang + Cơ Nguyệt Đồng Lương | ★★★ | Động tĩnh bổ sung, nhưng cần rèn hợp, một bên khai phá một bên thủ thành |
+| Tử Phá + Liêm Phủ | ★★★★ | Cách cục tương đương, hút nhau |
+| Vũ Khúc + Thiên Đồng | ★★★ | Cương nhu tương tế, Vũ Khúc thu liễm gặp Thiên Đồng ôn hòa, bổ sung được |
 
 ---
 
-### 十、倪海厦合盘核心名言汇总
+### Mười. Tổng hợp những lời tâm đắc cốt lõi của Nghê Hải Hạ về hợp bàn
 
-1. **“看婚姻，光看夫妻宫，大错特错，一定要同时看福德宫。”**
-2. **“廉贞贪狼/廉贞破军在夫妻宫，不管男命女命，非生离即死别。”**
-3. **“廉贞七杀——半路埋尸；廉贞破军——水中做冢；廉贞贪狼——横夭夭折。”**
-4. **“太阳化忌，上不见父，下不见子，中不见夫。“（女命那十年配偶有重大灾难）**
-5. **“男人的命，最怕太阴化忌，婆媳不和，太太跟妈妈一定不和。”**
-6. **“旺夫，一个太太完全让先��没有后顾之忧；克夫是感情太好，完全以对方为主。”**
-7. **“巨门在朋友宫，跟朋友合伙会朋友变仇人。”**
-8. **“如果你娶个太太是七杀入命，那你差不多毁了一半了，很累啊，草木皆兵。”**
+1. **“Xem hôn nhân, chỉ xem cung Phu Thê là sai lầm lớn, nhất định phải xem đồng thời cung Phúc Đức.”**
+2. **“Liêm Trinh Tham Lang / Liêm Trinh Phá Quân ở cung Phu Thê, nam mệnh hay nữ mệnh đều không sinh ly thì tử biệt.”**
+3. **“Liêm Trinh Thất Sát — chôn xác giữa đường; Liêm Trinh Phá Quân — xây mồ giữa nước; Liêm Trinh Tham Lang — chết yểu.”**
+4. **“Thái Dương Hóa Kỵ, trên không thấy cha, dưới không thấy con, giữa không thấy chồng.” (nữ mệnh mười năm đó bạn đời có tai họa lớn)**
+5. **“Mệnh đàn ông, sợ nhất Thái Âm Hóa Kỵ, mẹ chồng nàng dâu bất hòa, vợ với mẹ nhất định không hợp nhau.”**
+6. **“Vượng phu, là người vợ khiến chồng hoàn toàn không phải lo lắng gì phía sau; khắc phu là tình cảm quá tốt, hoàn toàn lấy đối phương làm chính.”**
+7. **“Cự Môn ở cung bạn bè, hùn hạp với bạn bè thì bạn thành thù.”**
+8. **“Nếu bạn cưới người vợ có Thất Sát nhập Mệnh, thì gần như hỏng một nửa rồi, rất mệt, cỏ cây đều là địch.”**
 `;
 
-// ─── 婚姻判断辅助表 ───────────��─────────────────────────────
+// ─── Bảng hỗ trợ phán đoán hôn nhân ─────────────────────────────────────────────
 
 export const MARRIAGE_STARS_BRIEF: Record<string, string> = {
-  '红鸾': '婚恋正缘，入命身主动成婚；流年逢红鸾该年婚恋有动',
-  '天喜': '婚喜，与红鸾相互引动，主喜事到来',
-  '天姚': '才艺桃花，感情机遇；婚恋中遇天姚易有浪漫邂逅',
-  '咸池': '强力桃花，注意感情纷扰；遇贪狼则桃花最旺',
-  '孤辰': '孤克之星，男命入命宫主独立好，但入夫妻宫主缘浅',
-  '寡宿': '孤克之星，女命入命或夫妻宫，主婚姻不顺聚少离多',
-  '天哭': '孤克刑伤，入夫妻宫主配偶有重大灾祸',
-  '天虚': '空耗之星，入夫妻宫主感情虚耗',
-  '天巫': '晚婚遗产宗教；入夫妻宫主晚婚为吉，早婚多波折',
+  '红鸾': 'Chính duyên tình yêu hôn nhân, nhập cung Mệnh / Thân thì chủ động kết hôn; lưu niên gặp Hồng Loan thì năm đó tình duyên có động',
+  '天喜': 'Hôn hỉ, cùng Hồng Loan dẫn động lẫn nhau, chủ chuyện vui đến',
+  '天姚': 'Đào hoa tài nghệ, cơ hội tình cảm; trong tình yêu hôn nhân gặp Thiên Diêu dễ có cuộc gặp gỡ lãng mạn',
+  '咸池': 'Đào hoa mạnh, chú ý rắc rối tình cảm; gặp Tham Lang thì đào hoa vượng nhất',
+  '孤辰': 'Sao cô khắc, nam mệnh nhập cung Mệnh chủ độc lập tốt, nhưng nhập cung Phu Thê chủ duyên mỏng',
+  '寡宿': 'Sao cô khắc, nữ mệnh nhập cung Mệnh hoặc cung Phu Thê, chủ hôn nhân không thuận, ít gặp nhiều xa',
+  '天哭': 'Cô khắc hình thương, nhập cung Phu Thê chủ bạn đời gặp tai họa lớn',
+  '天虚': 'Sao hao hụt trống rỗng, nhập cung Phu Thê chủ tình cảm hao hụt hư không',
+  '天巫': 'Kết hôn muộn, di sản, tôn giáo; nhập cung Phu Thê chủ kết hôn muộn là cát, kết hôn sớm nhiều trắc trở',
 };
 
 export const HEMING_SCORE_CRITERIA = {
-  '五星': '双方夫妻宫互映天作之合，四化相互补益，大限同走旺运，福德宫双吉',
-  '四星': '一方夫妻宫对应对方命宫，四化以禄科为主，感情基础扎实',
-  '三星': '命格相配但各有棱角，需磨合，长期来看稳定',
-  '二星': '夫妻宫各有煞星，化忌有冲，感情起伏大，需双方主动经营',
-  '一星': '凶星汇聚夫妻宫，或廉贞三凶组合，生离死别风险高',
+  '五星': 'Cung Phu Thê hai bên chiếu nhau thành thiên tác chi hợp, Tứ Hóa bổ ích lẫn nhau, Đại hạn cùng đi vận vượng, cung Phúc Đức hai bên đều cát',
+  '四星': 'Cung Phu Thê của một bên tương ứng cung Mệnh của bên kia, Tứ Hóa chủ yếu là Lộc Khoa, nền tảng tình cảm vững chắc',
+  '三星': 'Mệnh cách tương xứng nhưng mỗi bên có góc cạnh, cần rèn hợp, về lâu dài ổn định',
+  '二星': 'Cung Phu Thê mỗi bên có Sát tinh, Hóa Kỵ có xung, tình cảm thăng trầm lớn, hai bên cần chủ động vun đắp',
+  '一星': 'Hung tinh tụ ở cung Phu Thê, hoặc tổ hợp tam hung của Liêm Trinh, nguy cơ sinh ly tử biệt cao',
 };
