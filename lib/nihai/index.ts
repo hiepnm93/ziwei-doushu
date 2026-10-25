@@ -124,8 +124,8 @@ export const NI_HAIXIA_BIO = {
   /** 人格特征 */
   personality: {
     算命风格: 'Phán thẳng như đinh đóng cột, không chừa đường lui',
-    音乐爱好: '最喜老鹰乐队《加州旅馆》',
-    生活技能: 'Nấu ăn giặt giặt đồ việc gì cũng giỏi, tài làm bột bánh khiến ai cũng khen',
+    音乐爱好: 'Thích nhất bài «Hotel California» của ban nhạc Eagles',
+    生活技能: 'Nấu ăn giặt đồ việc gì cũng giỏi, tài làm bột bánh ai cũng khen',
     工作态度: 'Đầu giường quanh năm để giấy bút, gặp bệnh nan y thì khấn cầu tiên sư',
     睡眠: 'Nhiều năm ngủ ban đêm chưa đến ba tiếng',
     患者评价: 'Thường được bệnh nhân Mỹ gọi là “hy vọng cuối cùng (The last hope)”',
