@@ -49,13 +49,7 @@ export default function ChartPage() {
         ← Lập lại lá số
       </button>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 380px)',
-          gap: 20, alignItems: 'start',
-        }}
-      >
+      <div className="chart-demo-split">
         <ChartBoard chart={chart} onPalaceSelect={setSelectedPalace} />
         <InsightPanel chart={chart} selectedPalace={selectedPalace} />
       </div>

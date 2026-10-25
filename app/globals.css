@@ -362,8 +362,17 @@ body {
 }
 .chart-topbar-back-sep { width: 1px; height: 20px; background: var(--bdr-med); }
 
+/* /chart: board + insight side by side, stacked on phones */
+.chart-demo-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+  gap: 20px;
+  align-items: start;
+}
+
 /* 手机版 */
 @media (max-width: 767px) {
+  .chart-demo-split { grid-template-columns: minmax(0, 1fr); }
   .chart-page-root {
     height: auto;        /* 允许全页滚动 */
     min-height: 100vh;
