@@ -6,18 +6,18 @@ export const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未',
 
 // 时辰对应地支
 export const SHICHEN = [
-  { branch: 0, name: '子时', range: '23:00-01:00' },
-  { branch: 1, name: '丑时', range: '01:00-03:00' },
-  { branch: 2, name: '寅时', range: '03:00-05:00' },
-  { branch: 3, name: '卯时', range: '05:00-07:00' },
-  { branch: 4, name: '辰时', range: '07:00-09:00' },
-  { branch: 5, name: '巳时', range: '09:00-11:00' },
-  { branch: 6, name: '午时', range: '11:00-13:00' },
-  { branch: 7, name: '未时', range: '13:00-15:00' },
-  { branch: 8, name: '申时', range: '15:00-17:00' },
-  { branch: 9, name: '酉时', range: '17:00-19:00' },
-  { branch: 10, name: '戌时', range: '19:00-21:00' },
-  { branch: 11, name: '亥时', range: '21:00-23:00' },
+  { branch: 0, name: 'Giờ Tý', range: '23:00-01:00' },
+  { branch: 1, name: 'Giờ Sửu', range: '01:00-03:00' },
+  { branch: 2, name: 'Giờ Dần', range: '03:00-05:00' },
+  { branch: 3, name: 'Giờ Mão', range: '05:00-07:00' },
+  { branch: 4, name: 'Giờ Thìn', range: '07:00-09:00' },
+  { branch: 5, name: 'Giờ Tỵ', range: '09:00-11:00' },
+  { branch: 6, name: 'Giờ Ngọ', range: '11:00-13:00' },
+  { branch: 7, name: 'Giờ Mùi', range: '13:00-15:00' },
+  { branch: 8, name: 'Giờ Thân', range: '15:00-17:00' },
+  { branch: 9, name: 'Giờ Dậu', range: '17:00-19:00' },
+  { branch: 10, name: 'Giờ Tuất', range: '19:00-21:00' },
+  { branch: 11, name: 'Giờ Hợi', range: '21:00-23:00' },
 ];
 
 // 十二宫名顺序；地支索引从命宫起每减 1 前进一宫（排盘界面为逆时针）
@@ -40,7 +40,7 @@ export const ELEMENT_TO_JU: Record<string, number> = {
 
 // 局数名称
 export const JU_NAMES: Record<number, string> = {
-  2: '水二局', 3: '木三局', 4: '金四局', 5: '土五局', 6: '火六局'
+  2: 'Thủy nhị cục', 3: 'Mộc tam cục', 4: 'Kim tứ cục', 5: 'Thổ ngũ cục', 6: 'Hỏa lục cục'
 };
 
 // 四化表（年干 → [化禄, 化权, 化科, 化忌]）
@@ -109,18 +109,18 @@ export const TIANMA_TABLE: Record<number, number> = {
 
 // 主星描述（倪师体系）
 export const STAR_DESCRIPTIONS: Record<string, { keywords: string; nature: string; element: string }> = {
-  '紫微': { keywords: '帝王·尊贵·独立', nature: '中性偏吉', element: '土' },
-  '天机': { keywords: '智慧·机变·谋略', nature: '吉星', element: '木' },
-  '太阳': { keywords: '阳刚·官贵·慷慨', nature: '吉星', element: '火' },
-  '武曲': { keywords: '财富·刚毅·果断', nature: '中性', element: '金' },
-  '天同': { keywords: '温和·享福·随缘', nature: '吉星', element: '水' },
-  '廉贞': { keywords: '才艺·刑囚·桃花', nature: '凶中带吉', element: '火' },
-  '天府': { keywords: '财库·稳重·保守', nature: '吉星', element: '土' },
-  '太阴': { keywords: '柔美·财富·阴柔', nature: '吉星', element: '水' },
-  '贪狼': { keywords: '欲望·桃花·多才', nature: '中性', element: '木' },
-  '巨门': { keywords: '口舌·是非·善辩', nature: '凶中带吉', element: '水' },
-  '天相': { keywords: '辅佐·行政·印绶', nature: '吉星', element: '水' },
-  '天梁': { keywords: '荫护·医药·长辈', nature: '吉星', element: '土' },
-  '七杀': { keywords: '将星·果决·孤克', nature: '凶星', element: '金' },
-  '破军': { keywords: '开创·变动·破坏', nature: '凶星', element: '水' },
+  '紫微': { keywords: 'Đế vương · tôn quý · độc lập', nature: 'Trung tính thiên cát', element: 'Thổ' },
+  '天机': { keywords: 'Trí tuệ · ứng biến · mưu lược', nature: 'Cát tinh', element: 'Mộc' },
+  '太阳': { keywords: 'Dương cương · quyền quý · hào phóng', nature: 'Cát tinh', element: 'Hỏa' },
+  '武曲': { keywords: 'Tài phú · kiên cường · quyết đoán', nature: 'Trung tính', element: 'Kim' },
+  '天同': { keywords: 'Ôn hòa · hưởng phúc · tùy duyên', nature: 'Cát tinh', element: 'Thủy' },
+  '廉贞': { keywords: 'Tài nghệ · hình tù · đào hoa', nature: 'Hung trong có cát', element: 'Hỏa' },
+  '天府': { keywords: 'Tài khố · vững vàng · bảo thủ', nature: 'Cát tinh', element: 'Thổ' },
+  '太阴': { keywords: 'Dịu dàng · tài phú · âm nhu', nature: 'Cát tinh', element: 'Thủy' },
+  '贪狼': { keywords: 'Dục vọng · đào hoa · đa tài', nature: 'Trung tính', element: 'Mộc' },
+  '巨门': { keywords: 'Khẩu thiệt · thị phi · biện bác', nature: 'Hung trong có cát', element: 'Thủy' },
+  '天相': { keywords: 'Phụ tá · hành chính · ấn thụ', nature: 'Cát tinh', element: 'Thủy' },
+  '天梁': { keywords: 'Che chở · y dược · bề trên', nature: 'Cát tinh', element: 'Thổ' },
+  '七杀': { keywords: 'Tướng tinh · quả quyết · cô khắc', nature: 'Hung tinh', element: 'Kim' },
+  '破军': { keywords: 'Khai sáng · biến động · phá hoại', nature: 'Hung tinh', element: 'Thủy' },
 };
