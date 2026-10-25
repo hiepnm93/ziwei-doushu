@@ -1,51 +1,12 @@
 'use client';
-import { useState, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
 import { formToBirthInfo } from '@/lib/ziwei/share';
 import { generateChart as buildChart } from '@/lib/ziwei/algorithm';
-import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
+import type { ZiweiChart } from '@/lib/ziwei/types';
+import ChartSummary from '@/components/ChartSummary';
 import { useTheme } from '@/components/ThemeProvider';
-
-// ─── AiContent 渲染器（与 InsightPanel 一致）────────────────
-function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
-  const lines = text.split('\n');
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-      {lines.map((line, i) => {
-        const sectionMatch = line.match(/^\*\*【(.+?)】\*\*$/);
-        if (sectionMatch) {
-          return (
-            <div key={i} style={{ paddingTop: i === 0 ? 0 : '14px', paddingBottom: '4px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ac)', letterSpacing: '0.04em' }}>
-                【{sectionMatch[1]}】
-              </span>
-            </div>
-          );
-        }
-        if (line.trim() === '') return <div key={i} style={{ height: '4px' }} />;
-        const parts = line.split(/\*\*(.+?)\*\*/);
-        return (
-          <div key={i} style={{ fontSize: '13px', lineHeight: 1.75, color: 'var(--tx-2)' }}>
-            {parts.map((part, j) =>
-              j % 2 === 0
-                ? part
-                : <strong key={j} style={{ fontWeight: 500, color: 'var(--tx-0)' }}>{part}</strong>
-            )}
-          </div>
-        );
-      })}
-      {streaming && (
-        <span style={{
-          display: 'inline-block', width: '7px', height: '13px',
-          background: 'var(--ac)', opacity: 0.5, borderRadius: '2px',
-          animation: 'pulse 1s ease-in-out infinite',
-          verticalAlign: 'middle', marginLeft: '2px',
-        }} />
-      )}
-    </div>
-  );
-}
 
 export default function HemingPage() {
   const router = useRouter();
@@ -59,94 +20,26 @@ export default function HemingPage() {
   const [formA, setFormA] = useState<BirthFormState | null>(null);
   const [formB, setFormB] = useState<BirthFormState | null>(null);
 
-  // ─── AI 合盘分析状态 ─────────────────────────────────────
-  const [analysis, setAnalysis] = useState('');
-  const [analyzing, setAnalyzing] = useState(false);
-  const [question, setQuestion] = useState('');
-  const [analysisError, setAnalysisError] = useState(false);
-  // 开源版不含 /api/heming：接口 404 时单独说明，而不是让用户反复重试
-  const [apiMissing, setApiMissing] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const analysisRef = useRef<HTMLDivElement>(null);
-
-  // ─── 起盘（单次调用，返回 chart 给统一流程使用）──────────
-  // 开源版不含后端 /api/generate：直接用本仓库的排盘引擎在浏览器里起盘
-  const generateChart = useCallback(async (info: BirthInfo): Promise<ZiweiChart | null> => {
-    try {
-      return buildChart(info);
-    } catch {
-      return null;
-    }
-  }, []);
 
   // 表单是否填齐
   const isFormReady = (f: BirthFormState | null): boolean =>
     !!(f && f.year && f.month && f.day && f.gender && (f.unknownTime || (f.clockHour !== '' && f.clockMinute !== '')));
 
-  // ─── 统一入口：起盘 + 合盘分析 ─────────────────────────────
-  const runAnalysis = useCallback(async (q?: string) => {
+  // 开源版不含 /api/heming：只在浏览器里起两张盘
+  const runCompare = () => {
     setFormError(null);
     if (!isFormReady(formA) || !isFormReady(formB)) {
-      setFormError('请先填写双方完整出生信息');
+      setFormError('Vui lòng điền đầy đủ thông tin sinh của cả hai người');
       return;
     }
-    setAnalyzing(true);
-    setAnalysis('');
-    setAnalysisError(false);
-
     try {
-      // 并行起两张盘（如果还没起）
-      let cA = chartA;
-      let cB = chartB;
-      const [newA, newB] = await Promise.all([
-        cA ? Promise.resolve(cA) : generateChart(formToBirthInfo(formA!)),
-        cB ? Promise.resolve(cB) : generateChart(formToBirthInfo(formB!)),
-      ]);
-      cA = newA;
-      cB = newB;
-      if (!cA || !cB) {
-        setAnalysisError(true);
-        setAnalyzing(false);
-        return;
-      }
-      if (!chartA) setChartA(cA);
-      if (!chartB) setChartB(cB);
-
-      const res = await fetch('/api/heming', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chartA: cA, chartB: cB, question: q ?? undefined }),
-      });
-      if (res.status === 404) { setApiMissing(true); throw new Error('api-missing'); }
-      if (!res.ok || !res.body) throw new Error();
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let text = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if (data === '[DONE]') break;
-          try {
-            const delta = JSON.parse(data).delta?.text ?? '';
-            text += delta;
-            setAnalysis(text);
-          } catch { /* skip */ }
-        }
-      }
-      // scroll to analysis
-      setTimeout(() => analysisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      setChartA(buildChart(formToBirthInfo(formA!)));
+      setChartB(buildChart(formToBirthInfo(formB!)));
     } catch {
-      setAnalysisError(true);
-    } finally {
-      setAnalyzing(false);
+      setFormError('Không lập được lá số, vui lòng kiểm tra lại thông tin');
     }
-  }, [chartA, chartB, formA, formB, generateChart]);
+  };
 
   const cardStyle = {
     background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.9)',
@@ -178,12 +71,12 @@ export default function HemingPage() {
           }}
         >
           <span style={{ fontSize: '16px' }}>‹</span>
-          <span>返回</span>
+          <span>Quay lại</span>
         </button>
         <div style={{ width: '1px', height: '20px', background: 'var(--bdr-med)' }} />
-        <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>合盘分析</span>
+        <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>Hợp lá số</span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: '11px', color: 'var(--tx-3)' }}>感情 · 合伙 · 亲子 · 朋友</span>
+        <span style={{ fontSize: '11px', color: 'var(--tx-3)' }}>Tình cảm · Hợp tác · Cha con · Bạn bè</span>
       </header>
 
       {/* 主体 */}
@@ -193,10 +86,10 @@ export default function HemingPage() {
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <div style={{ fontSize: '28px', color: 'var(--ac)', opacity: 0.15, marginBottom: '12px' }}>☯</div>
           <h1 style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '0.15em', color: 'var(--tx-0)', marginBottom: '8px' }}>
-            紫微合盘
+            Hợp lá số Tử Vi
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--tx-3)', lineHeight: 1.6 }}>
-            输入两个人的出生信息，AI 基于倪海厦体系分析双方命盘的缘分匹配度、感情走向与相处建议
+            Nhập thông tin sinh của hai người để lập và xem song song hai lá số theo hệ thống thầy Nghê Hải Hạ
           </p>
         </div>
 
@@ -205,7 +98,7 @@ export default function HemingPage() {
           className="heming-grid">
           {/* 甲方 */}
           <div style={cardStyle}>
-            <span style={labelStyle}>甲方 — A</span>
+            <span style={labelStyle}>Người A</span>
             <BirthForm
               hideSubmit
               onSubmit={() => {}}
@@ -215,7 +108,7 @@ export default function HemingPage() {
 
           {/* 乙方 */}
           <div style={cardStyle}>
-            <span style={labelStyle}>乙方 — B</span>
+            <span style={labelStyle}>Người B</span>
             <BirthForm
               hideSubmit
               onSubmit={() => {}}
@@ -224,137 +117,37 @@ export default function HemingPage() {
           </div>
         </div>
 
-        {/* ═══ 大合盘分析框（视觉中心，始终显示）════════════════ */}
-        <div ref={analysisRef} style={{
-          ...cardStyle,
-          minHeight: '320px',
-          padding: '32px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: (!analysis && !analyzing) ? 'center' : 'flex-start',
-        }}>
-          {/* 区块标题 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: (analysis || analyzing) ? '20px' : '24px' }}>
-            <span style={{ color: 'var(--ac)', opacity: 0.6 }}>◉</span>
-            <span style={{ fontSize: '11px', letterSpacing: '0.3em', color: 'var(--tx-3)' }}>合盘分析 · HEMING</span>
+        {/* ═══ 双方命盘（浏览器内起盘；AI 合盘接口不在开源版）═══ */}
+        <div style={{ ...cardStyle, textAlign: 'center' }}>
+          <button
+            onClick={runCompare}
+            style={{
+              padding: '14px 40px', borderRadius: 'var(--r-pill)', border: 'none',
+              background: 'linear-gradient(135deg, #9a6210, #c88020)',
+              color: '#fff8e8', fontSize: '14px', fontWeight: 600,
+              letterSpacing: '0.05em', cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(140,100,20,0.25)',
+            }}
+          >
+            Lập lá số hai người
+          </button>
+          {formError && (
+            <div style={{ marginTop: '16px', fontSize: '13px', color: '#dc2626' }}>{formError}</div>
+          )}
+          <div style={{ marginTop: '16px', fontSize: '12px', color: 'var(--tx-3)' }}>
+            Phân tích hợp hôn bằng AI: Tính năng này chưa có trên bản mở nguồn.
           </div>
-
-          {/* 状态分支 */}
-          {!analysis && !analyzing && (
-            <div style={{ textAlign: 'center', padding: '32px 0' }}>
-              <div style={{ fontSize: '13px', color: 'var(--tx-3)', marginBottom: '24px', lineHeight: 1.7 }}>
-                填好双方出生信息后，点击下方按钮<br />
-                AI 将基于倪海厦体系深度分析两人缘分匹配度
-              </div>
-              <button
-                onClick={() => runAnalysis()}
-                style={{
-                  padding: '14px 40px', borderRadius: 'var(--r-pill)', border: 'none',
-                  background: 'linear-gradient(135deg, #9a6210, #c88020)',
-                  color: '#fff8e8', fontSize: '14px', fontWeight: 600,
-                  letterSpacing: '0.15em', cursor: 'pointer',
-                  boxShadow: '0 4px 16px rgba(140,100,20,0.25)',
-                  transition: 'transform 0.15s',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-              >
-                开始合盘分析
-              </button>
-              {formError && (
-                <div style={{ marginTop: '20px', fontSize: '13px', color: '#dc2626' }}>
-                  {formError}
-                </div>
-              )}
-            </div>
-          )}
-
-          {analyzing && !analysis && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '40px 0', color: 'var(--tx-3)', fontSize: '13px' }}>
-              <div style={{
-                width: '14px', height: '14px',
-                border: '2px solid var(--bdr-med)', borderTopColor: 'var(--ac)',
-                borderRadius: '50%', animation: 'spin 0.8s linear infinite',
-              }} />
-              正在对比双方命盘…
-            </div>
-          )}
-
-          {analysis && <AiContent text={analysis} streaming={analyzing} />}
-
-          {analysisError && (
-            <div style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--bdr)', background: 'var(--bg-card)', fontSize: '13px', color: 'var(--tx-2)', marginTop: '12px' }}>
-              {apiMissing
-                ? '开源版不含合盘 AI 分析接口（/api/heming），需要你自己实现后才能用。两人的命盘可以分别到「排盘」页（/chart）查看。'
-                : '分析暂时不可用，请重试。'}
-            </div>
-          )}
         </div>
 
-        {/* ═══ 针对合盘的追问聊天框（仅分析完成后显示）═══════════ */}
-        {analysis && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
-            <div style={{ fontSize: '11px', letterSpacing: '0.2em', color: 'var(--tx-3)', marginBottom: '4px' }}>
-              针对此次合盘继续追问
-            </div>
-
-            {/* 快捷问题 */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {[
-                '感情匹配度如何？',
-                '适合合伙创业吗？',
-                '两人结婚是否合适？',
-                '哪方面最容易产生矛盾？',
-                '财运是否互补？',
-              ].map(q => (
-                <button
-                  key={q}
-                  onClick={() => { setQuestion(q); runAnalysis(q); }}
-                  disabled={analyzing}
-                  style={{
-                    fontSize: '12px', padding: '6px 14px',
-                    borderRadius: 'var(--r-pill)',
-                    border: '1px solid var(--bdr-med)',
-                    background: 'transparent', color: 'var(--tx-2)',
-                    cursor: analyzing ? 'not-allowed' : 'pointer',
-                    opacity: analyzing ? 0.5 : 1,
-                    transition: 'border-color 0.15s',
-                  }}
-                  onMouseEnter={e => { if (!analyzing) (e.currentTarget as HTMLElement).style.borderColor = 'var(--ac-bdr)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--bdr-med)'; }}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-
-            {/* 输入框 + 追问按钮 */}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="text"
-                value={question}
-                onChange={e => setQuestion(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !analyzing) runAnalysis(question || undefined); }}
-                placeholder="继续追问，如：哪几年是两人感情关键期？"
-                disabled={analyzing}
-                className="input-base"
-                style={{ fontSize: '13px', flex: 1 }}
-              />
-              <button
-                onClick={() => runAnalysis(question || undefined)}
-                disabled={analyzing}
-                style={{
-                  padding: '10px 20px', borderRadius: 'var(--r-sm)', border: 'none',
-                  background: analyzing ? 'var(--bg-2)' : 'var(--tx-0)',
-                  color: analyzing ? 'var(--tx-3)' : 'white',
-                  fontSize: '13px', fontWeight: 500,
-                  cursor: analyzing ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.15s', whiteSpace: 'nowrap',
-                }}
-              >
-                {analyzing ? '分析中…' : '继续追问'}
-              </button>
-            </div>
+        {chartA && chartB && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '24px' }}
+            className="heming-grid">
+            {[chartA, chartB].map((c, i) => (
+              <div key={i}>
+                <span style={labelStyle}>{i === 0 ? 'Người A' : 'Người B'}</span>
+                <ChartSummary chart={c} />
+              </div>
+            ))}
           </div>
         )}
       </div>
