@@ -70,18 +70,21 @@ export async function POST(req: Request) {
     const enc = new TextEncoder();
     let buf = '';
     const out = new ReadableStream<Uint8Array>({
+      // must enqueue or close before returning, else the stream never pulls again
       async pull(ctl) {
-        const { value, done } = await reader.read().catch(() => ({ value: undefined, done: true }));
-        if (done) return ctl.close();
-        buf += value;
-        const lines = buf.split('\n');
-        buf = lines.pop() ?? '';
-        let piece = '';
-        for (const l of lines) {
-          if (!l.startsWith('data: ') || l === 'data: [DONE]') continue;
-          try { piece += JSON.parse(l.slice(6)).choices?.[0]?.delta?.content ?? ''; } catch {}
+        for (;;) {
+          const { value, done } = await reader.read().catch(() => ({ value: undefined, done: true }));
+          if (done) return ctl.close();
+          buf += value;
+          const lines = buf.split('\n');
+          buf = lines.pop() ?? '';
+          let piece = '';
+          for (const l of lines) {
+            if (!l.startsWith('data: ') || l === 'data: [DONE]') continue;
+            try { piece += JSON.parse(l.slice(6)).choices?.[0]?.delta?.content ?? ''; } catch {}
+          }
+          if (piece) return ctl.enqueue(enc.encode(piece));
         }
-        if (piece) ctl.enqueue(enc.encode(piece));
       },
       cancel() { reader.cancel(); },
     });
