@@ -112,11 +112,11 @@ const FEATURES = [
   },
   {
     tag: 'Luận giải AI',
-    title: 'Luận giải bằng AI\n(chưa có)',
-    subtitle: 'Tính năng này chưa có trên bản mở nguồn',
+    title: 'Luận giải\nbằng AI',
+    subtitle: 'Bấm một nút, AI đọc cả lá số và viết lời luận',
     points: [
-      'Bản gốc dùng máy chủ /api để luận giải bằng AI; bản mở nguồn không kèm máy chủ này.',
-      'Bạn vẫn có thể tự xem lá số, Đại hạn, Lưu niên và đọc lời giảng trong Kho kiến thức.',
+      'Tính cách, sự nghiệp, tình cảm và đại hạn hiện tại, viết bằng tiếng Việt dễ hiểu.',
+      'Miễn phí, mỗi người 5 lượt/ngày. Tử Vi chỉ để tham khảo.',
     ],
   },
   {
@@ -377,7 +377,7 @@ function FeatureVisual({ index, colors: c }: { index: number; colors: ReturnType
   if (index === 2) {
     const msgs = [
       { role: 'user', text: 'Năm nay sự nghiệp của tôi thế nào?' },
-      { role: 'ai', text: 'Tính năng này chưa có trên bản mở nguồn.' },
+      { role: 'ai', text: 'Đại hạn này cung Quan Lộc được Hóa Lộc, việc làm có cơ hội mở rộng…' },
       { role: 'user', text: 'Khi nào vận tình cảm tốt nhất?' },
     ];
     return (
