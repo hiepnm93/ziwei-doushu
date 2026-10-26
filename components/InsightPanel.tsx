@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { TimeView } from './TimeNav';
 import { viTerm } from '@/lib/i18n/vi';
@@ -15,11 +16,43 @@ interface InsightPanelProps {
   selectedSiHua?: SelectedSiHua | null;
 }
 
-/**
- * 开源版不含 AI 解读接口（/api/interpret）：只显示所选宫位的星曜，并说明 AI 解读不可用。
- */
+/** 命盘 → 给 AI 的越南语纯文本摘要（服务端 /api/interpret 只收这段文字）。 */
+function chartText(c: ZiweiChart): string {
+  const b = c.birthInfo;
+  const lines = [
+    `Giới tính: ${b.gender === 'male' ? 'Nam' : 'Nữ'}${c.yinYangGender ? ` (${viTerm(c.yinYangGender)})` : ''}, tuổi hiện tại: ${c.currentAge}`,
+    `Cục: ${viTerm(c.wuxingJuName)}${c.mingZhu ? `, Mệnh chủ: ${viTerm(c.mingZhu)}` : ''}${c.shenZhu ? `, Thân chủ: ${viTerm(c.shenZhu)}` : ''}`,
+  ];
+  for (const p of c.palaces) {
+    const tags = [p.isMingGong && 'Mệnh', p.isShenGong && 'Thân', p.isCurrentDaXian && 'đại hạn hiện tại'].filter(Boolean).join(', ');
+    const stars = p.stars.length
+      ? p.stars.map(s => `${viTerm(s.name)}${s.siHua ? ` (Hóa ${viTerm(s.siHua)})` : ''}`).join(', ')
+      : 'Vô chính diệu';
+    const age = p.daXianAge ? ` [${p.daXianAge[0]}-${p.daXianAge[1]} tuổi]` : '';
+    lines.push(`- Cung ${viTerm(p.name)}${tags ? ` (${tags})` : ''}${age}: ${stars}`);
+  }
+  return lines.join('\n').slice(0, 4000);
+}
+
 export default function InsightPanel({ chart, selectedPalace }: InsightPanelProps) {
   const palace = selectedPalace ?? chart.palaces.find(p => p.branch === chart.mingGongBranch);
+  const [ai, setAi] = useState<{ loading?: boolean; text?: string; error?: string }>({});
+
+  async function interpret() {
+    setAi({ loading: true });
+    try {
+      const r = await fetch('/api/interpret', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: chartText(chart) }),
+      });
+      const j = await r.json();
+      setAi(j.text ? { text: j.text } : { error: j.error || 'Có lỗi, thử lại sau.' });
+    } catch {
+      setAi({ error: 'Không kết nối được, thử lại sau.' });
+    }
+  }
+
   return (
     <div className="flex flex-col h-full rounded-xl overflow-hidden card-glass p-4 gap-3">
       <div className="text-[9px] tracking-widest flex items-center gap-1.5" style={{ color: 'var(--t-faint)' }}>
@@ -34,9 +67,20 @@ export default function InsightPanel({ chart, selectedPalace }: InsightPanelProp
             : 'Vô chính diệu'}
         </div>
       )}
-      <div className="text-[11px] rounded-lg px-3 py-2" style={{ border: '1px solid var(--t-border)', color: 'var(--t-faint)' }}>
-        Luận giải bằng AI: Tính năng này chưa có trên bản mở nguồn.
-      </div>
+      <button
+        onClick={interpret}
+        disabled={ai.loading}
+        className="text-[12px] rounded-lg px-3 py-2 font-semibold disabled:opacity-50"
+        style={{ border: '1px solid var(--t-gold)', color: 'var(--t-gold)' }}
+      >
+        {ai.loading ? 'AI đang luận giải…' : ai.text ? 'Luận giải lại bằng AI' : '✦ Luận giải cả lá số bằng AI'}
+      </button>
+      {ai.error && <div className="text-[11px]" style={{ color: 'var(--t-faint)' }}>{ai.error}</div>}
+      {ai.text && (
+        <div className="text-[12px] leading-relaxed whitespace-pre-wrap overflow-y-auto" style={{ color: 'var(--t-text2)' }}>
+          {ai.text}
+        </div>
+      )}
     </div>
   );
 }
