@@ -1,5 +1,5 @@
 // AI 解读：把客户端整理好的命盘文字交给 AI 代理（内网，持有 Cloudflare token），返回越南语解读。
-// Flow: InsightPanel → POST {text} → per-IP + global daily cap → AI_PROXY_URL (OpenAI-style chat) → {text}
+// Flow: InsightPanel → POST {text} → per-IP + global daily cap → AI_PROXY_URL (OpenAI-style chat, SSE) → streamed plain text (errors: JSON {error})
 import { NextResponse } from 'next/server';
 
 const PROXY = process.env.AI_PROXY_URL; // e.g. http://cfai:8080/chat — token lives in the proxy, not here
@@ -56,17 +56,38 @@ export async function POST(req: Request) {
         messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: text }],
         max_tokens: 900,
         temperature: 0.6,
+        stream: true,
       }),
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.timeout(90_000),
     });
-    const j = await r.json().catch(() => null);
-    const out = j?.choices?.[0]?.message?.content;
-    if (!r.ok || typeof out !== 'string') {
+    if (!r.ok || !r.body) {
       perIp.set(ip, used); total--; // failed call doesn't burn the user's quota
-      console.error('interpret upstream', r.status, JSON.stringify(j?.errors ?? '').slice(0, 300));
+      console.error('interpret upstream', r.status, (await r.text().catch(() => '')).slice(0, 300));
       return NextResponse.json({ error: 'AI đang bận, thử lại sau ít phút.' }, { status: 502 });
     }
-    return NextResponse.json({ text: out.trim(), left: PER_IP - used - 1 });
+    // SSE "data: {choices:[{delta:{content}}]}" lines → plain text chunks for the client
+    const reader = r.body.pipeThrough(new TextDecoderStream()).getReader();
+    const enc = new TextEncoder();
+    let buf = '';
+    const out = new ReadableStream<Uint8Array>({
+      async pull(ctl) {
+        const { value, done } = await reader.read().catch(() => ({ value: undefined, done: true }));
+        if (done) return ctl.close();
+        buf += value;
+        const lines = buf.split('\n');
+        buf = lines.pop() ?? '';
+        let piece = '';
+        for (const l of lines) {
+          if (!l.startsWith('data: ') || l === 'data: [DONE]') continue;
+          try { piece += JSON.parse(l.slice(6)).choices?.[0]?.delta?.content ?? ''; } catch {}
+        }
+        if (piece) ctl.enqueue(enc.encode(piece));
+      },
+      cancel() { reader.cancel(); },
+    });
+    return new Response(out, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no' },
+    });
   } catch (e) {
     perIp.set(ip, used); total--;
     console.error('interpret', String(e).slice(0, 200));

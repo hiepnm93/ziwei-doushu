@@ -46,10 +46,22 @@ export default function InsightPanel({ chart, selectedPalace }: InsightPanelProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: chartText(chart) }),
       });
-      const j = await r.json();
-      setAi(j.text ? { text: j.text } : { error: j.error || 'Có lỗi, thử lại sau.' });
+      if (!r.ok || !r.body) {
+        const j = await r.json().catch(() => ({}));
+        return setAi({ error: j.error || 'Có lỗi, thử lại sau.' });
+      }
+      // streamed plain text: show each chunk as it arrives
+      const reader = r.body.pipeThrough(new TextDecoderStream()).getReader();
+      let text = '';
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        text += value;
+        setAi({ loading: true, text });
+      }
+      setAi(text.trim() ? { text: text.trim() } : { error: 'AI đang bận, thử lại sau ít phút.' });
     } catch {
-      setAi({ error: 'Không kết nối được, thử lại sau.' });
+      setAi(a => (a.text ? { text: a.text } : { error: 'Không kết nối được, thử lại sau.' }));
     }
   }
 
