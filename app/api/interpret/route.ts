@@ -1,10 +1,8 @@
-// AI 解读：把客户端整理好的命盘文字交给 Cloudflare Workers AI，返回越南语解读。
-// Flow: InsightPanel → POST {text} → per-IP + global daily cap → Workers AI chat → {text}
+// AI 解读：把客户端整理好的命盘文字交给 AI 代理（内网，持有 Cloudflare token），返回越南语解读。
+// Flow: InsightPanel → POST {text} → per-IP + global daily cap → AI_PROXY_URL (OpenAI-style chat) → {text}
 import { NextResponse } from 'next/server';
 
-const ACCOUNT = process.env.CF_ACCOUNT_ID;
-const TOKEN = process.env.CF_AI_TOKEN;
-const MODEL = process.env.CF_AI_MODEL || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const PROXY = process.env.AI_PROXY_URL; // e.g. http://cfai:8080/chat — token lives in the proxy, not here
 const PER_IP = Number(process.env.AI_PER_IP_DAY || 5);
 const GLOBAL = Number(process.env.AI_GLOBAL_DAY || 300); // free tier 10k neurons/day
 const MAX_IN = 4000;
@@ -25,7 +23,7 @@ function today() {
 }
 
 export async function POST(req: Request) {
-  if (!ACCOUNT || !TOKEN) return NextResponse.json({ error: 'Chưa cấu hình AI.' }, { status: 503 });
+  if (!PROXY) return NextResponse.json({ error: 'Chưa cấu hình AI.' }, { status: 503 });
 
   let text: unknown;
   try {
@@ -51,11 +49,10 @@ export async function POST(req: Request) {
   total++;
 
   try {
-    const r = await fetch(`https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/ai/v1/chat/completions`, {
+    const r = await fetch(PROXY, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: MODEL,
         messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: text }],
         max_tokens: 900,
         temperature: 0.6,
