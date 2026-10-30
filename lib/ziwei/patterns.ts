@@ -15,7 +15,7 @@
  *  - 倪师《天纪》紫微斗数讲义
  */
 
-import 'server-only';
+// 纯函数、无密钥：客户端组件（ChartSummary / PatternsCard）直接调用
 import type { ZiweiChart, Palace, Star } from './types';
 
 // ────────────────── 类型 ──────────────────

@@ -90,6 +90,27 @@
   --bg-page: #020810;
 }
 
+/* 旧组件（InsightPanel / PatternsCard / StarDetailPanel / ChartSummary / ChatPanel）用的 --t-* 别名 */
+:root {
+  --t-gold: var(--ac);
+  --t-text: var(--tx-1);
+  --t-text2: var(--tx-2);
+  --t-faint: var(--tx-3);
+  --t-border: var(--bdr-med);
+  --t-border-acc: var(--ac-bdr);
+  --t-card: var(--bg-card);
+}
+.card-glass {
+  background: var(--bg-card);
+  border: 1px solid var(--bdr-med);
+  box-shadow: var(--sh-sm);
+}
+.card-inner {
+  background: var(--bg-1);
+  border: 1px solid var(--bdr);
+}
+[data-theme="dark"] .card-inner { background: rgba(255,255,255,0.03); }
+
 /* ─── 全局基础 ───────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 

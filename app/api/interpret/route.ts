@@ -1,17 +1,24 @@
 // AI 解读：把客户端整理好的命盘文字交给 AI 代理（内网，持有 Cloudflare token），返回越南语解读。
-// Flow: InsightPanel → POST {text} → per-IP + global daily cap → AI_PROXY_URL (OpenAI-style chat, SSE) → streamed plain text (errors: JSON {error})
+// Flow: InsightPanel / ChatPanel → POST {text, question?} → per-IP + global daily cap → AI_PROXY_URL (OpenAI-style chat, SSE) → streamed plain text (errors: JSON {error})
 import { NextResponse } from 'next/server';
 
 const PROXY = process.env.AI_PROXY_URL; // e.g. http://cfai:8080/chat — token lives in the proxy, not here
 const PER_IP = Number(process.env.AI_PER_IP_DAY || 5);
 const GLOBAL = Number(process.env.AI_GLOBAL_DAY || 300); // free tier 10k neurons/day
 const MAX_IN = 4000;
+const MAX_Q = 300;
 
 const SYSTEM = `Bạn là thầy Tử Vi Đẩu Số. Người dùng gửi lá số (các cung, sao, tứ hóa, đại hạn).
 Viết luận giải bằng tiếng Việt, giọng mộc mạc, dễ hiểu, khoảng 300-450 chữ:
 1) Tính cách và điểm mạnh theo cung Mệnh/Thân; 2) Sự nghiệp, tài lộc; 3) Tình cảm, gia đạo; 4) Đại hạn hiện tại nên chú ý gì.
 Chỉ dựa vào dữ liệu lá số. Không phán chuyện sống chết, bệnh nặng; không khuyên tài chính cụ thể.
 Kết bằng một câu nhắc: Tử Vi chỉ để tham khảo. Nếu nội dung gửi tới không phải lá số Tử Vi thì từ chối ngắn gọn.`;
+
+// ChatPanel: one question about the same chart (stateless; each question costs one quota unit)
+const SYSTEM_QA = `Bạn là thầy Tử Vi Đẩu Số. Người dùng gửi lá số (các cung, sao, tứ hóa, đại hạn) kèm một câu hỏi.
+Trả lời đúng câu hỏi bằng tiếng Việt, giọng mộc mạc, dễ hiểu, khoảng 150-300 chữ, chỉ dựa vào dữ liệu lá số.
+Không phán chuyện sống chết, bệnh nặng; không khuyên tài chính cụ thể. Kết bằng một câu nhắc: Tử Vi chỉ để tham khảo.
+Nếu câu hỏi không liên quan tới lá số Tử Vi thì từ chối ngắn gọn.`;
 
 // ponytail: in-memory counters, reset on container restart; move to a store if we run >1 replica
 let day = '';
@@ -25,15 +32,19 @@ function today() {
 export async function POST(req: Request) {
   if (!PROXY) return NextResponse.json({ error: 'Chưa cấu hình AI.' }, { status: 503 });
 
-  let text: unknown;
+  let text: unknown, question: unknown;
   try {
-    ({ text } = await req.json());
+    ({ text, question } = await req.json());
   } catch {
     return NextResponse.json({ error: 'Dữ liệu không hợp lệ.' }, { status: 400 });
   }
   if (typeof text !== 'string' || !text.trim() || text.length > MAX_IN) {
     return NextResponse.json({ error: 'Dữ liệu không hợp lệ.' }, { status: 400 });
   }
+  if (question !== undefined && (typeof question !== 'string' || !question.trim() || question.length > MAX_Q)) {
+    return NextResponse.json({ error: `Câu hỏi trống hoặc dài quá ${MAX_Q} ký tự.` }, { status: 400 });
+  }
+  const q = typeof question === 'string' ? question.trim() : '';
 
   const d = today();
   if (d !== day) { day = d; perIp.clear(); total = 0; }
@@ -53,8 +64,10 @@ export async function POST(req: Request) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: text }],
-        max_tokens: 900,
+        messages: q
+          ? [{ role: 'system', content: SYSTEM_QA }, { role: 'user', content: `${text}\n\nCâu hỏi: ${q}` }]
+          : [{ role: 'system', content: SYSTEM }, { role: 'user', content: text }],
+        max_tokens: q ? 600 : 900,
         temperature: 0.6,
         stream: true,
       }),
