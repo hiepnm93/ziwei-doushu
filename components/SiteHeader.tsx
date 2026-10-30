@@ -30,8 +30,9 @@ export default function SiteHeader() {
             {n.label}
           </Link>
         ))}
+        {/* mobile: logo already links home, this button would overflow 390px */}
         <Link href="/"
-          className="text-[11px] sm:text-xs px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full"
+          className="hidden sm:inline-block text-xs px-4 py-1.5 rounded-full"
           style={{ border: '1px solid var(--ac-bdr)', color: 'var(--ac)' }}>
           Lập lá số
         </Link>
